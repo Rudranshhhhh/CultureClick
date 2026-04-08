@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Play, ArrowRight, UserAvatar, UserProfile, Recommendation, ImageSearch, DataRegular } from '@carbon/icons-react';
+import { Play, ArrowRight, UserAvatar, UserProfile, AiRecommend, ImageSearch, DataRegular } from '@carbon/icons-react';
 import './Landing.css';
 
 const FEATURES = [
@@ -12,7 +12,7 @@ const FEATURES = [
     desc: 'Browse activities efficiently. Our algorithm learns your implicit preferences in real time.',
   },
   {
-    icon: <Recommendation size={32} />,
+    icon: <AiRecommend size={32} />,
     title: 'AI Advisor',
     desc: "Get personalized suggestions based on your historical data and real-time local weather.",
   },
