@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { getNextHobby, recordSwipe } from '../api';
+import { getNextHobby, recordSwipe, getDoNowTracks, startDoNowTrack, checkinDoNowTrack, extendDoNowTrack, completeDoNowTrack } from '../api';
 import HobbyCard from '../components/HobbyCard';
 import { Compass, CheckmarkOutline, FavoriteFilled, SkipForwardFilled, StarFilled } from '@carbon/icons-react';
 import './SwipePage.css';
@@ -13,6 +13,12 @@ export default function SwipePage() {
   const [loading, setLoading] = useState(true);
   const [allDone, setAllDone] = useState(false);
   const [lastAction, setLastAction] = useState(null);
+  const [tracks, setTracks] = useState([]);
+  const [activeCount, setActiveCount] = useState(0);
+  const [showDoNowModal, setShowDoNowModal] = useState(false);
+  const [selectedHobby, setSelectedHobby] = useState(null);
+  const [targetDays, setTargetDays] = useState(7);
+  const [doNowError, setDoNowError] = useState('');
 
   const fetchCards = useCallback(async () => {
     if (!user?.id) return;
@@ -44,6 +50,22 @@ export default function SwipePage() {
   useEffect(() => {
     fetchCards();
   }, [fetchCards]);
+
+  const refreshTracks = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const res = await getDoNowTracks();
+      setTracks(res.data?.tracks || []);
+      setActiveCount(res.data?.active_count || 0);
+    } catch {
+      setTracks([]);
+      setActiveCount(0);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    refreshTracks();
+  }, [refreshTracks]);
 
   const handleSwipe = async (action) => {
     if (!cards.length) return;
@@ -78,6 +100,49 @@ export default function SwipePage() {
     } catch {}
   };
 
+  const handleOpenDoNow = (hobby) => {
+    setSelectedHobby(hobby);
+    setTargetDays(hobby?.do_it_now?.default_streak_days || 7);
+    setDoNowError('');
+    setShowDoNowModal(true);
+  };
+
+  const handleStartDoNow = async () => {
+    if (!selectedHobby?._id) return;
+    setDoNowError('');
+    try {
+      await startDoNowTrack(selectedHobby._id, targetDays);
+      setLastAction({ action: 'superlike', hobbyName: `${selectedHobby.name} started` });
+      setShowDoNowModal(false);
+      setSelectedHobby(null);
+      await refreshTracks();
+      setTimeout(() => setLastAction(null), 1200);
+    } catch (err) {
+      setDoNowError(err?.response?.data?.error || 'Unable to start this plan.');
+    }
+  };
+
+  const handleCheckin = async (trackId) => {
+    try {
+      await checkinDoNowTrack(trackId);
+      await refreshTracks();
+    } catch {}
+  };
+
+  const handleExtend = async (trackId, extraDays = 7) => {
+    try {
+      await extendDoNowTrack(trackId, extraDays);
+      await refreshTracks();
+    } catch {}
+  };
+
+  const handleComplete = async (trackId) => {
+    try {
+      await completeDoNowTrack(trackId);
+      await refreshTracks();
+    } catch {}
+  };
+
   return (
     <div className="swipe-page">
       {/* Progress indicator */}
@@ -96,7 +161,43 @@ export default function SwipePage() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
           />
         </div>
+        <div className="do-now-strip">
+          <span className="do-now-title">Do It Now tracks</span>
+          <span className="do-now-count">{activeCount} / 4 active</span>
+        </div>
       </div>
+
+      {tracks.length > 0 && (
+        <div className="do-now-list">
+          {tracks.slice(0, 4).map((t) => (
+            <div key={t._id} className="do-now-item">
+              <div>
+                <strong>{t.hobby_name || 'Hobby'}</strong>
+                <div className="do-now-meta">
+                  {t.completed_days}/{t.target_days} days • {t.status}
+                </div>
+                {t.plan?.session_minutes ? (
+                  <div className="do-now-plan">
+                    {t.plan.session_minutes} min/day
+                    {Array.isArray(t.plan.quick_start_steps) && t.plan.quick_start_steps[0] ? ` • ${t.plan.quick_start_steps[0]}` : ''}
+                  </div>
+                ) : null}
+              </div>
+              <div className="do-now-actions">
+                {t.status === 'active' && (
+                  <>
+                    <button className="mini-btn" onClick={() => handleCheckin(t._id)}>Check in</button>
+                    <button className="mini-btn ghost" onClick={() => handleComplete(t._id)}>Complete</button>
+                  </>
+                )}
+                {t.status === 'completed' && (
+                  <button className="mini-btn" onClick={() => handleExtend(t._id, 7)}>+7 days</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Card stack */}
       <div className="card-stack-area">
@@ -129,6 +230,7 @@ export default function SwipePage() {
                 index={idx}
                 isTop={idx === 0}
                 onSwipe={handleSwipe}
+                onDoNow={handleOpenDoNow}
               />
             ))}
           </AnimatePresence>
@@ -159,6 +261,43 @@ export default function SwipePage() {
           <span className="hint hint-skip">← Skip</span>
           <span className="hint hint-super">↑ Superlike</span>
           <span className="hint hint-like">Like →</span>
+        </div>
+      )}
+
+      {showDoNowModal && selectedHobby && (
+        <div className="do-now-modal-backdrop" onClick={() => setShowDoNowModal(false)}>
+          <div className="do-now-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Start "{selectedHobby.name}"</h3>
+            <p>Pick your target streak length before you begin.</p>
+            {selectedHobby.do_it_now && (
+              <div className="do-now-content">
+                <div className="do-now-session">
+                  Suggested session: {selectedHobby.do_it_now.session_minutes || 25} min/day
+                </div>
+                <ul>
+                  {(selectedHobby.do_it_now.quick_start_steps || []).map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="day-options">
+              {(selectedHobby.do_it_now?.streak_options_days || [3, 7, 14, 21, 30]).map((d) => (
+                <button
+                  key={d}
+                  className={`day-btn ${targetDays === d ? 'active' : ''}`}
+                  onClick={() => setTargetDays(d)}
+                >
+                  {d} days
+                </button>
+              ))}
+            </div>
+            {doNowError && <div className="do-now-error">{doNowError}</div>}
+            <div className="do-now-modal-actions">
+              <button className="mini-btn ghost" onClick={() => setShowDoNowModal(false)}>Cancel</button>
+              <button className="mini-btn" onClick={handleStartDoNow}>Start learning</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

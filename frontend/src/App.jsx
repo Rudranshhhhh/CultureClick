@@ -8,9 +8,10 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Onboarding from './pages/Onboarding';
-import SwipePage from './pages/SwipePage';
+import DiscoverPage from './pages/DiscoverPage';
 import BuddyChat from './pages/BuddyChat';
 import Board from './pages/Board';
+import MyHobbies from './pages/MyHobbies';
 import FocusSession from './pages/FocusSession';
 import './App.css';
 
@@ -68,7 +69,9 @@ export default function App() {
               {/* Protected routes */}
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/focus/:hobbyId" element={<ProtectedRoute><FocusSession /></ProtectedRoute>} />
-              <Route path="/swipe" element={<ProtectedRoute><SwipePage /></ProtectedRoute>} />
+              <Route path="/swipe" element={<ProtectedRoute><DiscoverPage /></ProtectedRoute>} />
+              <Route path="/discover" element={<ProtectedRoute><DiscoverPage /></ProtectedRoute>} />
+              <Route path="/my-hobbies" element={<ProtectedRoute><MyHobbies /></ProtectedRoute>} />
               <Route path="/buddy" element={<ProtectedRoute><BuddyChat /></ProtectedRoute>} />
               <Route path="/board" element={<ProtectedRoute><Board /></ProtectedRoute>} />
 

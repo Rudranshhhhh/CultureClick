@@ -1,6 +1,7 @@
 import json
 import random
 from datetime import datetime
+import re
 
 from config import GROQ_API_KEY
 
@@ -38,8 +39,88 @@ FALLBACK_SUGGESTIONS = [
     },
 ]
 
+def _compute_streak_length(day_keys):
+    """Compute consecutive-day streak ending today (UTC)."""
+    if not day_keys:
+        return 0
 
-def get_buddy_suggestion(user_prefs, weather, city, user_message="", user_id=None):
+    today = datetime.utcnow().date()
+    streak = 0
+    cursor = today
+    day_set = set(day_keys)
+    while cursor.isoformat() in day_set:
+        streak += 1
+        cursor = cursor.fromordinal(cursor.toordinal() - 1)
+    return streak
+
+
+def _extract_duration_minutes(note):
+    """
+    Best-effort parser for notes like:
+    'Duration: 30 min'
+    """
+    if not note:
+        return 0
+    m = re.search(r"Duration:\s*(\d+)\s*min", str(note), re.IGNORECASE)
+    if not m:
+        return 0
+    try:
+        return max(0, int(m.group(1)))
+    except Exception:
+        return 0
+
+
+def build_user_context(user_id, user_doc=None):
+    """
+    Build compact user context for Buddy prompts:
+    - streak_length (consecutive memory days ending today)
+    - interests (from liked categories)
+    - time_dedicated_minutes (estimated from memory notes)
+    """
+    context = {
+        "streak_length": 0,
+        "interests": [],
+        "time_dedicated_minutes": 0,
+        "memories_count": 0,
+        "onboarding_complete": bool((user_doc or {}).get("onboarding_complete", False)),
+    }
+
+    try:
+        from config import db
+
+        liked_categories = (user_doc or {}).get("liked_categories", {}) or {}
+        ranked = sorted(liked_categories.items(), key=lambda x: x[1], reverse=True)
+        context["interests"] = [cat for cat, score in ranked if score > 0][:5]
+
+        memories = list(
+            db.memories.find(
+                {"user_id": user_id},
+                {"created_at": 1, "note": 1}
+            ).sort("created_at", -1).limit(120)
+        )
+        context["memories_count"] = len(memories)
+
+        day_keys = []
+        total_minutes = 0
+        for mem in memories:
+            created_at = mem.get("created_at")
+            if created_at:
+                try:
+                    day_keys.append(created_at.date().isoformat())
+                except Exception:
+                    pass
+            total_minutes += _extract_duration_minutes(mem.get("note", ""))
+
+        context["streak_length"] = _compute_streak_length(day_keys)
+        context["time_dedicated_minutes"] = total_minutes
+    except Exception:
+        # Keep graceful fallback context if DB read fails.
+        pass
+
+    return context
+
+
+def get_buddy_suggestion(user_prefs, weather, city, user_message="", user_id=None, user_context=None):
     """
     Call Groq (LLaMA) to generate a personalised activity suggestion.
     Falls back to curated suggestions if no API key is configured.
@@ -73,7 +154,20 @@ def get_buddy_suggestion(user_prefs, weather, city, user_message="", user_id=Non
 
         day_of_week = datetime.now().strftime("%A")
 
-        system_prompt = f"""You are Buddy, a friendly and enthusiastic hobby advisor for the CultureClick app.
+        context = user_context or {}
+        streak_length = context.get("streak_length", 0)
+        interests = ", ".join(context.get("interests", [])) or "No clear interests yet"
+        time_dedicated_minutes = context.get("time_dedicated_minutes", 0)
+        memories_count = context.get("memories_count", 0)
+
+        system_prompt = f"""You are Buddy, the accountability and hobby-building coach for the CultureClick app.
+CultureClick is a micro-habit and hobby building app designed to reduce doom scrolling and help users spend their time intentionally.
+Your core job is to help users take small, practical actions inside CultureClick, not to keep them chatting.
+When relevant, nudge users toward:
+- picking a hobby idea they can start now,
+- starting a short focused session,
+- and saving progress as a memory to build momentum.
+Prefer low-friction suggestions that can be started in 5-30 minutes.
 Always respond with valid JSON only.
 Based on this user's taste profile, suggest ONE specific, concrete activity they should try.
 
@@ -82,6 +176,10 @@ Top categories: {top_cats_str}
 City: {city}
 Weather: {weather_str}
 Day: {day_of_week}
+User streak length: {streak_length} day(s)
+User interests: {interests}
+Estimated dedicated time tracked: {time_dedicated_minutes} minutes
+Saved memories: {memories_count}
 
 Return ONLY valid JSON with these fields:
 {{
@@ -140,7 +238,7 @@ Return ONLY valid JSON with these fields:
         print(f"[Buddy] Groq API error: {e}")
         return random.choice(FALLBACK_SUGGESTIONS)
 
-def get_buddy_chat_reply(user_id, user_message, city):
+def get_buddy_chat_reply(user_id, user_message, city, user_context=None):
     """
     Call Groq (LLaMA) to generate a conversational reply for Buddy AI.
     Falls back to a simple string if API key is not configured.
@@ -157,9 +255,31 @@ def get_buddy_chat_reply(user_id, user_message, city):
         # Build context
         day_of_week = datetime.now().strftime("%A")
 
-        system_prompt = f"""You are Buddy, a friendly and enthusiastic hobby and activity advisor for the CultureClick app.
+        context = user_context or {}
+        streak_length = context.get("streak_length", 0)
+        interests = ", ".join(context.get("interests", [])) or "No clear interests yet"
+        time_dedicated_minutes = context.get("time_dedicated_minutes", 0)
+        memories_count = context.get("memories_count", 0)
+        onboarding_complete = "yes" if context.get("onboarding_complete") else "no"
+
+        system_prompt = f"""You are Buddy, the accountability and hobby-building coach for the CultureClick app.
+CultureClick helps users reduce doom scrolling by replacing passive screen time with intentional micro-habits and hobbies.
 You are chatting with a user in {city} on {day_of_week}.
-Keep your answers brief, engaging, and conversational.
+User context:
+- onboarding complete: {onboarding_complete}
+- streak length: {streak_length} day(s)
+- interests: {interests}
+- estimated dedicated time tracked: {time_dedicated_minutes} minutes
+- saved memories: {memories_count}
+
+Behavior rules:
+- Keep answers brief, practical, and encouraging (2-5 sentences max).
+- Focus on helping the user take the next concrete step right now.
+- Prefer tiny actions they can do in 5-30 minutes.
+- When useful, suggest using app flows: get another idea, start a focused session, and save a memory after finishing.
+- Do not encourage endless chat; move them toward action.
+- Ask at most one short follow-up question when needed.
+
 Do NOT use JSON for this regular conversational endpoint, return plain text."""
 
         messages = [

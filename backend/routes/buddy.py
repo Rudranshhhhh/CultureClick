@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from bson import ObjectId
 
 from config import db
-from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply
+from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context
 from services.weather_service import get_weather
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -43,8 +43,16 @@ def suggest():
         "liked_categories": user.get("liked_categories", {}),
         "skipped_categories": user.get("skipped_categories", {}),
     }
+    user_context = build_user_context(user_id, user_doc=user)
 
-    suggestion = get_buddy_suggestion(user_prefs, weather, city, message, user_id=user_id)
+    suggestion = get_buddy_suggestion(
+        user_prefs,
+        weather,
+        city,
+        message,
+        user_id=user_id,
+        user_context=user_context,
+    )
 
     return jsonify({"suggestion": suggestion, "weather": weather})
 
@@ -58,6 +66,16 @@ def get_history():
         msg["_id"] = str(msg["_id"])
     return jsonify({"history": history})
 
+
+@buddy_bp.route("/api/buddy/context", methods=["GET"])
+@jwt_required()
+def get_context():
+    """Return the compact user context Buddy sees (for debugging)."""
+    user_id = get_jwt_identity()
+    user = db.users.find_one({"_id": ObjectId(user_id)})
+    user_context = build_user_context(user_id, user_doc=user or {})
+    return jsonify({"context": user_context})
+
 @buddy_bp.route("/api/buddy/chat", methods=["POST"])
 @jwt_required()
 def chat():
@@ -67,6 +85,12 @@ def chat():
     
     user = db.users.find_one({"_id": ObjectId(user_id)})
     city = user.get("city", "New York") if user else "New York"
+    user_context = build_user_context(user_id, user_doc=user or {})
     
-    reply = get_buddy_chat_reply(user_id=user_id, user_message=message, city=city)
+    reply = get_buddy_chat_reply(
+        user_id=user_id,
+        user_message=message,
+        city=city,
+        user_context=user_context,
+    )
     return jsonify({"reply": reply})

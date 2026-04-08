@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Compass, ChatBot, Catalog } from '@carbon/icons-react';
+import { Compass, ChatBot, Catalog, Favorite } from '@carbon/icons-react';
 import './Navbar.css';
 
 const NAV_ITEMS = [
   { to: '/swipe', icon: <Compass size={20} />, label: 'Discover' },
+  { to: '/my-hobbies', icon: <Favorite size={20} />, label: 'My Hobbies' },
   { to: '/buddy', icon: <ChatBot size={20} />, label: 'Buddy' },
   { to: '/board', icon: <Catalog size={20} />, label: 'Board' },
 ];

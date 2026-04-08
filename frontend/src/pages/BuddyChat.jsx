@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { getBuddySuggestion, getBuddyChatReply } from '../api';
+import { getBuddySuggestion, getBuddyChatReply, getBuddyContext } from '../api';
 import './BuddyChat.css';
 
 function TypingText({ text, speed = 20, onDone }) {
@@ -32,6 +32,8 @@ export default function BuddyChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [weather, setWeather] = useState(null);
+  const [buddyContext, setBuddyContext] = useState(null);
+  const [showContext, setShowContext] = useState(false);
   const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -46,10 +48,38 @@ export default function BuddyChat() {
   useEffect(() => {
     setMessages([{
       type: 'buddy',
-      text: "Hey there! 👋 I'm Buddy. Ask me anything — or tap “Another idea” if you want a hobby suggestion.",
+      text: "Hey there! 👋 I'm Buddy. I help you replace doom scrolling with small, meaningful hobby actions. Tell me your time/energy and I'll suggest your next step.",
       isGreeting: true,
     }]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch Buddy debug context (dev-only helper)
+  useEffect(() => {
+    let cancelled = false;
+    const shouldFetch =
+      typeof window !== 'undefined' &&
+      (window.location.search.includes('buddyDebug=1') ||
+        window.location.hostname === 'localhost');
+
+    if (!shouldFetch || !user?.id) return;
+
+    (async () => {
+      try {
+        const res = await getBuddyContext();
+        if (!cancelled) {
+          setBuddyContext(res.data?.context || null);
+        }
+      } catch {
+        if (!cancelled) {
+          setBuddyContext(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const fetchChatReply = async (msg) => {
     if (!user?.id) return;
@@ -143,7 +173,7 @@ export default function BuddyChat() {
         </div>
         <div className="buddy-info">
           <h2>Buddy</h2>
-          <p>Your AI hobby advisor</p>
+          <p>Your anti-doomscroll microhabit coach</p>
         </div>
         {weather && (
           <div className="weather-pill">
@@ -151,10 +181,28 @@ export default function BuddyChat() {
             <span className="weather-desc">{weather.description}</span>
           </div>
         )}
+
+        {buddyContext && (
+          <button
+            type="button"
+            className="buddy-debug-toggle"
+            onClick={() => setShowContext((v) => !v)}
+          >
+            {showContext ? 'Hide Buddy context' : 'Show Buddy context'}
+          </button>
+        )}
       </div>
 
       {/* Chat messages */}
       <div className="chat-messages">
+        {buddyContext && showContext && (
+          <div className="buddy-debug-panel">
+            <div className="buddy-debug-title">Buddy user context</div>
+            <pre className="buddy-debug-pre">
+              {JSON.stringify(buddyContext, null, 2)}
+            </pre>
+          </div>
+        )}
         <AnimatePresence>
           {messages.map((msg, i) => (
             <motion.div

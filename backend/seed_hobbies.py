@@ -199,9 +199,33 @@ HOBBIES = [
 ]
 
 
+def _build_do_it_now(hobby):
+    """Attach a lightweight action plan for immediate learning."""
+    name = hobby.get("name", "this hobby")
+    tags = hobby.get("tags", [])
+    first_tag = tags[0] if tags else "basics"
+    return {
+        "action_label": "Do it now",
+        "default_streak_days": 7,
+        "streak_options_days": [3, 7, 14, 21, 30],
+        "session_minutes": 25,
+        "quick_start_steps": [
+            f"Spend 5 minutes setting up for {name}.",
+            f"Practice one small {first_tag} drill for 15-20 minutes.",
+            "Log what you learned and save a memory in CultureClick.",
+        ],
+        "success_metric": "Show up daily and finish one focused micro-session.",
+    }
+
+
 def seed():
     db.hobbies.drop()
-    result = db.hobbies.insert_many(HOBBIES)
+    enriched = []
+    for hobby in HOBBIES:
+        h = dict(hobby)
+        h["do_it_now"] = _build_do_it_now(h)
+        enriched.append(h)
+    result = db.hobbies.insert_many(enriched)
     print(f"✅ Seeded {len(result.inserted_ids)} hobbies into the database!")
 
     # Print category breakdown

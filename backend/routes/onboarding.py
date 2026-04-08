@@ -49,3 +49,19 @@ def save_preferences():
 
     return jsonify({"status": "ok", "preference_profile": profile})
 
+
+@onboarding_bp.route("/api/onboarding/skip", methods=["POST"])
+@jwt_required()
+def skip_onboarding():
+    """Allow users to skip onboarding and continue using the app."""
+    user_id = get_jwt_identity()
+    user = db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"onboarding_complete": True, "onboarding_skipped": True}},
+    )
+    return jsonify({"status": "ok", "onboarding_complete": True, "onboarding_skipped": True})
+

@@ -75,6 +75,45 @@
   color: var(--text-secondary);
 }
 
+.buddy-debug-toggle {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  border: 1px dashed var(--border);
+  background: transparent;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.buddy-debug-toggle:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-secondary);
+}
+
+.buddy-debug-panel {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.buddy-debug-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.buddy-debug-pre {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .weather-desc {
   display: none;
 }

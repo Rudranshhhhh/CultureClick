@@ -28,7 +28,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 8px 24px;
+  padding: 8px 14px;
   text-decoration: none;
   color: var(--text-muted);
   transition: color var(--transition-fast);

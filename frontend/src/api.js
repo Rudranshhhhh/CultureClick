@@ -36,9 +36,15 @@ export const getMe = () =>
 export const saveOnboardingPreferences = (answers) =>
   api.post('/api/onboarding/preferences', { answers });
 
+export const skipOnboarding = () =>
+  api.post('/api/onboarding/skip');
+
 // ── Hobbies / Swipe ──────────────────────────────────────────
 export const getNextHobby = (userId) =>
   api.get(`/api/hobbies/next?user_id=${userId}`);
+
+export const getAllHobbies = () =>
+  api.get('/api/hobbies/all');
 
 export const recordSwipe = (userId, hobbyId, action) =>
   api.post('/api/swipe', { user_id: userId, hobby_id: hobbyId, action });
@@ -46,12 +52,39 @@ export const recordSwipe = (userId, hobbyId, action) =>
 export const getLikedHobbies = (userId) =>
   api.get(`/api/hobbies/liked?user_id=${userId}`);
 
+export const getSelectedHobbies = () =>
+  api.get('/api/hobbies/selected');
+
+export const addSelectedHobby = (hobbyId) =>
+  api.post('/api/hobbies/selected', { hobby_id: hobbyId });
+
+export const removeSelectedHobby = (hobbyId) =>
+  api.delete(`/api/hobbies/selected/${hobbyId}`);
+
+export const getDoNowTracks = () =>
+  api.get('/api/hobbies/do-now');
+
+export const startDoNowTrack = (hobbyId, targetDays) =>
+  api.post('/api/hobbies/do-now/start', { hobby_id: hobbyId, target_days: targetDays });
+
+export const checkinDoNowTrack = (trackId) =>
+  api.post(`/api/hobbies/do-now/${trackId}/checkin`);
+
+export const extendDoNowTrack = (trackId, extraDays) =>
+  api.post(`/api/hobbies/do-now/${trackId}/extend`, { extra_days: extraDays });
+
+export const completeDoNowTrack = (trackId) =>
+  api.post(`/api/hobbies/do-now/${trackId}/complete`);
+
 // ── Buddy ────────────────────────────────────────────────────
 export const getBuddySuggestion = (userId, message = '') =>
   api.post('/api/buddy/suggest', { user_id: userId, message });
 
 export const getBuddyChatReply = (message = '') =>
   api.post('/api/buddy/chat', { message });
+
+export const getBuddyContext = () =>
+  api.get('/api/buddy/context');
 
 // ── Memories ─────────────────────────────────────────────────
 export const getMemories = (userId) =>

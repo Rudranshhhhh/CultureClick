@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { saveOnboardingPreferences } from '../api';
+import { saveOnboardingPreferences, skipOnboarding } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Stepper, { Step } from './Stepper';
 import { buildDomainProfile, matchHobbies, saveDomainProfile } from '../utils/hobbyMatch';
@@ -245,7 +245,19 @@ export default function Onboarding() {
                 <button
                   type="button"
                   className="btn-ghost"
-                  onClick={() => navigate('/swipe')}
+                  onClick={async () => {
+                    if (saving) return;
+                    setSaving(true);
+                    setError('');
+                    try {
+                      await skipOnboarding();
+                      await refreshMe?.();
+                      navigate('/swipe', { replace: true });
+                    } catch (e) {
+                      setError(e?.response?.data?.error || 'Could not skip onboarding. Please try again.');
+                    }
+                    setSaving(false);
+                  }}
                   disabled={saving}
                   style={{ width: '100%' }}
                 >
