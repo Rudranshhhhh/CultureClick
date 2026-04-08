@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllHobbies, getSelectedHobbies, removeSelectedHobby } from '../api';
 import './MyHobbies.css';
 
 export default function MyHobbies() {
   const [hobbies, setHobbies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchSelected = async () => {
     setLoading(true);
@@ -22,9 +24,21 @@ export default function MyHobbies() {
       for (const h of localSelected) {
         if (!seen.has(h._id)) merged.push(h);
       }
+
+      // Also include hobbies picked during onboarding (stored as full objects)
+      const onboardingHobbies = JSON.parse(localStorage.getItem('cc_onboarding_hobbies') || '[]');
+      for (const h of onboardingHobbies) {
+        if (!seen.has(h._id)) {
+          merged.push(h);
+          seen.add(h._id);
+        }
+      }
+
       setHobbies(merged);
     } catch {
-      setHobbies([]);
+      // If API fails, still show onboarding hobbies
+      const onboardingHobbies = JSON.parse(localStorage.getItem('cc_onboarding_hobbies') || '[]');
+      setHobbies(onboardingHobbies);
     }
     setLoading(false);
   };
@@ -36,6 +50,18 @@ export default function MyHobbies() {
   const removeOne = async (hobbyId) => {
     const prev = hobbies;
     setHobbies((p) => p.filter((h) => h._id !== hobbyId));
+
+    // If it's an onboarding hobby (stored in localStorage), remove it from there
+    if (hobbyId.startsWith('onboarding_')) {
+      const onboardingHobbies = JSON.parse(localStorage.getItem('cc_onboarding_hobbies') || '[]');
+      localStorage.setItem(
+        'cc_onboarding_hobbies',
+        JSON.stringify(onboardingHobbies.filter((h) => h._id !== hobbyId))
+      );
+      return;
+    }
+
+    // Otherwise remove from backend
     try {
       await removeSelectedHobby(hobbyId);
       const localIds = JSON.parse(localStorage.getItem('cc_selected_hobbies') || '[]');
@@ -46,6 +72,14 @@ export default function MyHobbies() {
     } catch {
       setHobbies(prev);
     }
+  };
+
+  const startFocus = (hobby) => {
+    // For onboarding hobbies, strip the 'onboarding_' prefix to get the domain hobby id
+    const focusId = hobby._id.startsWith('onboarding_')
+      ? hobby._id.replace('onboarding_', '')
+      : hobby._id;
+    navigate(`/focus/${focusId}`);
   };
 
   return (
@@ -66,7 +100,22 @@ export default function MyHobbies() {
               <span className="my-hobby-cat">{h.category}</span>
               <h3>{h.name}</h3>
               <p>{h.description}</p>
-              <button type="button" onClick={() => removeOne(h._id)}>Remove</button>
+              <div className="my-hobby-actions">
+                <button
+                  type="button"
+                  className="focus-btn"
+                  onClick={() => startFocus(h)}
+                >
+                  🎯 Start Focus
+                </button>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => removeOne(h._id)}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -74,4 +123,3 @@ export default function MyHobbies() {
     </div>
   );
 }
-

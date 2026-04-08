@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Activity, UserAvatar } from "@carbon/icons-react";
+import { Activity } from "@carbon/icons-react";
 import { signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { firebaseAuth, googleProvider } from "../firebase";
 
 export default function Login() {
-  const { login, guestLogin, firebaseLogin } = useAuth();
+  const { login, firebaseLogin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,17 +43,7 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleGuest = async () => {
-    setLoading(true);
-    try {
-      const res = await guestLogin();
-      const onboarded = Boolean(res?.user?.onboarding_complete);
-      navigate(onboarded ? "/swipe" : "/onboarding");
-    } catch (err) {
-      setError("Failed to create guest session");
-    }
-    setLoading(false);
-  };
+
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -116,11 +106,6 @@ export default function Login() {
           Login with Google
         </button>
 
-        <div className="auth-divider">or</div>
-
-        <button className="btn-secondary" onClick={handleGuest} disabled={loading} style={{ justifyContent: 'center' }}>
-          Guest Access <UserAvatar size={16} />
-        </button>
 
         <div className="auth-footer">
           Don't have an account? <Link to="/register">Sign up</Link>

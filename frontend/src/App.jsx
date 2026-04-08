@@ -56,13 +56,13 @@ export default function App() {
   return (
     <div className={`app-wrapper ${isPublicRoute ? 'public-layout' : 'app-layout'}`} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
-      
+
       <main className="main-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingTop: '64px' }}>
         <div className={contentWrapperClass} style={isPublicRoute ? { flex: 1, display: 'flex', flexDirection: 'column' } : {}}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               {/* Public routes */}
-              <Route path="/" element={user ? <Navigate to="/swipe" replace /> : <Landing />} />
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={user ? <Navigate to="/swipe" replace /> : <Login />} />
               <Route path="/register" element={user ? <Navigate to="/swipe" replace /> : <Register />} />
 

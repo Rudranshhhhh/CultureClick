@@ -45,15 +45,50 @@
 }
 
 .my-hobby-card p {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   color: var(--text-secondary);
 }
 
-.my-hobby-card button {
+.my-hobby-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.my-hobby-actions .focus-btn {
+  flex: 1;
+  border: none;
+  background: var(--accent-primary, #6366f1);
+  color: #fff;
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.my-hobby-actions .focus-btn:hover {
+  background: var(--accent-hover, #4f46e5);
+  transform: translateY(-1px);
+}
+
+.my-hobby-actions .focus-btn:active {
+  transform: translateY(0);
+}
+
+.my-hobby-actions .remove-btn {
   border: 1px solid var(--border);
   background: transparent;
   border-radius: var(--radius-full);
-  padding: 6px 10px;
+  padding: 8px 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.my-hobby-actions .remove-btn:hover {
+  border-color: var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
 }

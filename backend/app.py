@@ -17,7 +17,7 @@ def handle_exception(err):
     app.logger.error(traceback.format_exc())
     return jsonify({"error": "Internal server error"}), 500
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 2592000  # 30 days
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 jwt = JWTManager(app)

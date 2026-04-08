@@ -77,6 +77,22 @@ export default function Onboarding() {
         mode,
       };
       await saveOnboardingPreferences(answers);
+
+      // Persist right-swiped domain hobbies so My Hobbies page can display them
+      if (pickedIds.length > 0) {
+        const picked = deck.filter((h) => pickedIds.includes(h.id)).map((h) => ({
+          _id: `onboarding_${h.id}`,
+          name: h.name,
+          description: h.description,
+          category: (h.interest_type || [])[0] || 'general',
+          environment: h.environment,
+          is_online: h.is_online,
+          url: h.url,
+          source: 'onboarding',
+        }));
+        localStorage.setItem('cc_onboarding_hobbies', JSON.stringify(picked));
+      }
+
       await refreshMe?.();
     } catch (e) {
       setError(e?.response?.data?.error || 'Could not save preferences. Please try again.');
@@ -134,10 +150,10 @@ export default function Onboarding() {
 
         <Stepper
           initialStep={1}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
           onFinalStepCompleted={() => {
             if (!canSubmit || saving) return;
-            persistOnboarding().then(() => navigate('/swipe', { replace: true })).catch(() => {});
+            persistOnboarding().then(() => navigate('/my-hobbies', { replace: true })).catch(() => { });
           }}
           backButtonText="Previous"
           nextButtonText="Next"
@@ -252,7 +268,7 @@ export default function Onboarding() {
                     try {
                       await skipOnboarding();
                       await refreshMe?.();
-                      navigate('/swipe', { replace: true });
+                      navigate('/my-hobbies', { replace: true });
                     } catch (e) {
                       setError(e?.response?.data?.error || 'Could not skip onboarding. Please try again.');
                     }
@@ -270,8 +286,8 @@ export default function Onboarding() {
                   onClick={async () => {
                     try {
                       await persistOnboarding();
-                      navigate('/swipe', { replace: true });
-                    } catch {}
+                      navigate('/my-hobbies', { replace: true });
+                    } catch { }
                   }}
                   style={{ width: '100%' }}
                 >

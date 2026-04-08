@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Play, ArrowRight, UserAvatar, UserProfile, AiRecommend, ImageSearch, DataRegular } from '@carbon/icons-react';
+import { Play, ArrowRight, UserProfile, AiRecommend, ImageSearch, DataRegular } from '@carbon/icons-react';
 import './Landing.css';
 
 const FEATURES = [
@@ -43,22 +42,8 @@ const STATS = [
 ];
 
 export default function Landing() {
-  const { guestLogin } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleGuest = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await guestLogin('New York');
-      navigate('/swipe');
-    } catch {
-      setError('Connection refused. Ensure backend service is operational.');
-    }
-    setLoading(false);
-  };
 
   return (
     <div className="landing-page">
@@ -78,16 +63,28 @@ export default function Landing() {
             <p className="hero-subtitle">
               Evaluate activities, receive contextual AI recommendations, and catalog your experiences using CultureClick's advanced discovery engine.
             </p>
-            
+
             <div className="hero-actions">
-              <Link to="/register" className="btn-primary">
-                Create Account <ArrowRight size={16} />
-              </Link>
-              <button className="btn-secondary" onClick={handleGuest} disabled={loading}>
-                {loading ? 'Initializing...' : 'Guest Access'} <UserAvatar size={16} />
-              </button>
+              {user ? (
+                <>
+                  <Link to="/discover" className="btn-primary">
+                    Discover Hobbies <ArrowRight size={16} />
+                  </Link>
+                  <a href="#features" className="btn-secondary">
+                    Learn More <Play size={16} />
+                  </a>
+                </>
+              ) : (
+                <>
+                  <Link to="/register" className="btn-primary">
+                    Create Account <ArrowRight size={16} />
+                  </Link>
+                  <Link to="/login" className="btn-secondary">
+                    Log In <ArrowRight size={16} />
+                  </Link>
+                </>
+              )}
             </div>
-            {error && <p className="hero-error">{error}</p>}
           </motion.div>
 
           <motion.div
@@ -166,11 +163,24 @@ export default function Landing() {
       <section className="cta-section">
         <div className="section-container">
           <div className="cta-card">
-            <h2>Initialize Your Profile</h2>
-            <p>Deploy CultureClick today to optimize your leisure parameters.</p>
-            <div className="cta-actions">
-              <Link to="/register" className="btn-primary">Commence Setup <ArrowRight size={16} /></Link>
-            </div>
+            {user ? (
+              <>
+                <h2>Ready to Explore?</h2>
+                <p>Jump into the discovery engine and find your next favorite hobby.</p>
+                <div className="cta-actions">
+                  <Link to="/discover" className="btn-primary">Discover Hobbies <ArrowRight size={16} /></Link>
+                  <Link to="/my-hobbies" className="btn-secondary">My Hobbies</Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>Initialize Your Profile</h2>
+                <p>Deploy CultureClick today to optimize your leisure parameters.</p>
+                <div className="cta-actions">
+                  <Link to="/register" className="btn-primary">Commence Setup <ArrowRight size={16} /></Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
