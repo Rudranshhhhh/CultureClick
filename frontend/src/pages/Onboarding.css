@@ -133,3 +133,159 @@
   margin-top: 12px;
 }
 
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.match-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.match-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.match-title {
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 15px;
+}
+
+.match-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.badge.online {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--accent-secondary);
+}
+
+.match-desc {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.match-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.match-actions .btn-primary,
+.match-actions .btn-ghost {
+  flex: 1;
+}
+
+.deck-wrap {
+  margin-top: 10px;
+}
+
+.domain-swipe-area {
+  margin-top: 10px;
+}
+
+.domain-card-stack {
+  position: relative;
+  width: 360px;
+  height: 460px;
+  max-width: calc(100vw - 64px);
+  margin: 0 auto;
+}
+
+.domain-swipe-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.domain-swipe-actions .action-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 800;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.domain-swipe-actions .action-btn:hover {
+  transform: translateY(-1px);
+  background: var(--bg-card-hover);
+}
+
+.domain-swipe-actions .action-btn.skip {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.domain-swipe-actions .action-btn.like {
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.deck-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 18px;
+  padding: 14px;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.deck-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.deck-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.deck-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.deck-actions .btn-primary,
+.deck-actions .btn-ghost {
+  flex: 1;
+}
+
+.deck-done {
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+

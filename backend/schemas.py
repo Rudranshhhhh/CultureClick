@@ -18,6 +18,9 @@ class SwipeSchema(Schema):
 
 class MemorySchema(Schema):
     hobby_id = fields.Str(required=True)
+    hobby_name = fields.Str(load_default="")
+    hobby_category = fields.Str(load_default="")
+    hobby_emoji = fields.Str(load_default="")
     note = fields.Str(load_default="")
     rating = fields.Int(required=True, validate=validate.Range(min=1, max=5))
     photo_url = fields.Str(load_default="")

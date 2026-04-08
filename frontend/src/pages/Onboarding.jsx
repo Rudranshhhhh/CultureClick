@@ -1,8 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveOnboardingPreferences } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Stepper, { Step } from './Stepper';
+import { buildDomainProfile, matchHobbies, saveDomainProfile } from '../utils/hobbyMatch';
+import { AnimatePresence } from 'framer-motion';
+import DomainHobbyCard from '../components/DomainHobbyCard';
 import './Onboarding.css';
 
 const CATEGORY_OPTIONS = [
@@ -10,7 +13,7 @@ const CATEGORY_OPTIONS = [
   { id: 'outdoor', label: 'Outdoor' },
   { id: 'physical', label: 'Movement' },
   { id: 'social', label: 'Social' },
-  { id: 'solo', label: 'Solo & mindful' },
+  { id: 'solo_mindful', label: 'Solo & mindful' },
   { id: 'digital', label: 'Digital' },
 ];
 
@@ -23,6 +26,12 @@ const TAG_OPTIONS = [
   { id: 'science-backed-focus', label: 'Science-backed focus' },
 ];
 
+const MODE_OPTIONS = [
+  { id: 'low_energy', label: 'Low energy' },
+  { id: 'bored', label: 'Bored' },
+  { id: 'focus_mode', label: 'Focus mode' },
+];
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { user, refreshMe } = useAuth();
@@ -32,35 +41,86 @@ export default function Onboarding() {
   const [indoor, setIndoor] = useState('either'); // indoor|outdoor|either
   const [timeMinutes, setTimeMinutes] = useState(30);
   const [notes, setNotes] = useState('');
+  const [mode, setMode] = useState([]);
+  const [pickedIds, setPickedIds] = useState([]); // right-swiped hobby IDs
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const canSubmit = useMemo(() => categories.length > 0 || tags.length > 0 || notes.trim().length > 0, [categories, tags, notes]);
+  const canSubmit = useMemo(() => categories.length > 0 || tags.length > 0 || mode.length > 0 || notes.trim().length > 0, [categories, tags, mode, notes]);
+
+  const domainProfile = useMemo(
+    () => buildDomainProfile({ categories, tags, indoor, timeMinutes, notes, mode }),
+    [categories, tags, indoor, timeMinutes, notes, mode]
+  );
+
+  const matches = useMemo(
+    () => matchHobbies(domainProfile, { limit: 8 }),
+    [domainProfile]
+  );
 
   const toggle = (arr, id, setArr) => {
     setArr((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
-  const handleSubmit = async () => {
+  const persistOnboarding = async () => {
     if (!user?.id) return;
     setSaving(true);
     setError('');
     try {
+      saveDomainProfile(domainProfile);
       const answers = {
         categories,
         tags,
         indoor_preference: indoor,
         time_minutes: Number(timeMinutes),
         free_text: notes,
+        mode,
       };
       await saveOnboardingPreferences(answers);
       await refreshMe?.();
-      navigate('/swipe', { replace: true });
     } catch (e) {
       setError(e?.response?.data?.error || 'Could not save preferences. Please try again.');
+      throw e;
     }
     setSaving(false);
   };
+
+  const ensureOnboardingThenGo = async (to) => {
+    if (saving) return;
+    if (!user?.onboarding_complete) {
+      try {
+        await persistOnboarding();
+      } catch {
+        return;
+      }
+    }
+    navigate(to);
+  };
+
+  const deck = useMemo(() => matches.map((m) => m.hobby), [matches]);
+
+  const handleDeckSwipe = (dir, hobby) => {
+    if (dir === 'right') {
+      setPickedIds((prev) => (prev.includes(hobby.id) ? prev : [...prev, hobby.id]));
+    }
+    // remove top card by shifting deck index via derived rendering:
+    // we store removed IDs in local state by slicing an offset.
+    setRemovedCount((c) => c + 1);
+  };
+
+  const [removedCount, setRemovedCount] = useState(0);
+  const visibleDeck = useMemo(() => deck.slice(removedCount), [deck, removedCount]);
+
+  const pickedHobbies = useMemo(
+    () => deck.filter((h) => pickedIds.includes(h.id)),
+    [pickedIds, deck]
+  );
+
+  useEffect(() => {
+    // Reset deck when matches list changes (profile edits).
+    setRemovedCount(0);
+    setPickedIds([]);
+  }, [deck]);
 
   return (
     <div className="page onboarding-page">
@@ -77,7 +137,7 @@ export default function Onboarding() {
           onStepChange={() => {}}
           onFinalStepCompleted={() => {
             if (!canSubmit || saving) return;
-            handleSubmit();
+            persistOnboarding().then(() => navigate('/swipe', { replace: true })).catch(() => {});
           }}
           backButtonText="Previous"
           nextButtonText="Next"
@@ -158,6 +218,20 @@ export default function Onboarding() {
 
           <Step>
             <div className="onboarding-section" style={{ marginTop: 0 }}>
+              <div className="onboarding-label">How are you feeling?</div>
+              <div className="chip-grid" style={{ marginBottom: 12 }}>
+                {MODE_OPTIONS.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className={`chip ${mode.includes(m.id) ? 'active' : ''}`}
+                    onClick={() => toggle(mode, m.id, setMode)}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="onboarding-label">Anything else?</div>
               <textarea
                 className="onboarding-textarea"
@@ -166,6 +240,7 @@ export default function Onboarding() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={5}
               />
+
               <div className="onboarding-final-actions">
                 <button
                   type="button"
@@ -180,12 +255,113 @@ export default function Onboarding() {
                   type="button"
                   className="btn-primary"
                   disabled={!canSubmit || saving}
-                  onClick={handleSubmit}
+                  onClick={async () => {
+                    try {
+                      await persistOnboarding();
+                      navigate('/swipe', { replace: true });
+                    } catch {}
+                  }}
                   style={{ width: '100%' }}
                 >
                   {saving ? 'Saving…' : 'Save preferences'}
                 </button>
               </div>
+            </div>
+          </Step>
+
+          <Step>
+            <div className="onboarding-section" style={{ marginTop: 0 }}>
+              <div className="onboarding-label">Suggested hobbies</div>
+              <p className="onboarding-hint" style={{ marginTop: 0 }}>
+                Swipe right to keep, left to skip. When you’re done, pick any of your kept hobbies to start.
+              </p>
+
+              <div className="domain-swipe-area">
+                {visibleDeck.length > 0 ? (
+                  <>
+                    <div className="domain-card-stack">
+                      <AnimatePresence>
+                        {visibleDeck.slice(0, 3).map((hobby, idx) => (
+                          <DomainHobbyCard
+                            key={hobby.id}
+                            hobby={hobby}
+                            index={idx}
+                            isTop={idx === 0}
+                            onSwipe={handleDeckSwipe}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </div>
+
+                    <div className="domain-swipe-actions">
+                      <button
+                        type="button"
+                        className="action-btn skip"
+                        onClick={() => handleDeckSwipe('left', visibleDeck[0])}
+                        title="Skip"
+                      >
+                        ✗
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn like"
+                        onClick={() => handleDeckSwipe('right', visibleDeck[0])}
+                        title="Keep"
+                      >
+                        ✓
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="deck-done">
+                    <div className="onboarding-hint" style={{ marginTop: 0 }}>
+                      Done swiping. You kept {pickedIds.length} hobby{pickedIds.length === 1 ? '' : 'ies'}.
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Selected list */}
+              {visibleDeck.length === 0 && pickedHobbies.length > 0 && (
+                <div className="match-list" style={{ marginTop: 14 }}>
+                  {pickedHobbies.map((hobby) => (
+                    <div key={hobby.id} className="match-card">
+                      <div className="match-title-row">
+                        <h3 className="match-title">{hobby.name}</h3>
+                        <div className="match-badges">
+                          <span className={`badge ${hobby.is_online ? 'online' : ''}`}>
+                            {hobby.is_online ? 'Online' : 'Offline'}
+                          </span>
+                          <span className="badge">{hobby.environment}</span>
+                        </div>
+                      </div>
+                      <p className="match-desc">{hobby.description}</p>
+                      <div className="match-actions">
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          onClick={() => ensureOnboardingThenGo(`/focus/${hobby.id}?minutes=${timeMinutes}`)}
+                        >
+                          Start focus
+                        </button>
+                        {hobby.is_online && hobby.url && (
+                          <a className="btn-ghost link-btn" href={hobby.url} target="_blank" rel="noreferrer">
+                            Open link
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {visibleDeck.length === 0 && pickedHobbies.length === 0 && (
+                <div className="deck-done" style={{ marginTop: 12 }}>
+                  <div className="onboarding-hint" style={{ marginTop: 0 }}>
+                    You skipped everything. Hit Previous to adjust preferences, or re-swipe by refreshing the page.
+                  </div>
+                </div>
+              )}
             </div>
           </Step>
         </Stepper>

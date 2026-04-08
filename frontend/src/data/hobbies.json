@@ -1,0 +1,188 @@
+{
+  "hobbies": [
+    {
+      "id": "sketching-drawing",
+      "name": "Sketching & Drawing",
+      "description": "Quick daily sketches to improve observation and visual thinking.",
+      "interest_type": ["creative", "solo_mindful"],
+      "environment": "indoor",
+      "style": ["beginner-friendly", "tactile-calming"],
+      "mode": ["low_energy", "bored"],
+      "goal": "Improve creativity and observation",
+      "time_minutes": [10, 30],
+      "is_online": false
+    },
+    {
+      "id": "zentangle-patterns",
+      "name": "Zentangle Patterns",
+      "description": "Structured doodling for relaxation and creative flow.",
+      "interest_type": ["creative", "solo_mindful"],
+      "environment": "indoor",
+      "style": ["grounding", "tactile-calming"],
+      "mode": ["low_energy"],
+      "goal": "Reduce stress and improve focus",
+      "time_minutes": [10, 20],
+      "is_online": false
+    },
+    {
+      "id": "yoga",
+      "name": "Yoga",
+      "description": "Body movement to improve flexibility and awareness.",
+      "interest_type": ["movement"],
+      "environment": "either",
+      "style": ["science-backed-focus", "beginner-friendly"],
+      "mode": ["low_energy", "focus_mode"],
+      "goal": "Improve physical and mental well-being",
+      "time_minutes": [15, 45],
+      "is_online": false
+    },
+    {
+      "id": "breathwork",
+      "name": "Breathwork",
+      "description": "Controlled breathing techniques to regulate focus and stress.",
+      "interest_type": ["solo_mindful"],
+      "environment": "indoor",
+      "style": ["evidence-based", "grounding"],
+      "mode": ["low_energy", "focus_mode"],
+      "goal": "Calm mind and increase concentration",
+      "time_minutes": [5, 15],
+      "is_online": false
+    },
+    {
+      "id": "walking-meditation",
+      "name": "Walking Meditation",
+      "description": "Slow walking with attention to each step and breath.",
+      "interest_type": ["outdoor", "movement"],
+      "environment": "outdoor",
+      "style": ["grounding"],
+      "mode": ["low_energy"],
+      "goal": "Relax and reset mental state",
+      "time_minutes": [10, 30],
+      "is_online": false
+    },
+    {
+      "id": "chess",
+      "name": "Chess",
+      "description": "Strategic board game to improve planning and foresight.",
+      "interest_type": ["digital", "solo_mindful"],
+      "environment": "indoor",
+      "style": ["cognitive-gains"],
+      "mode": ["focus_mode"],
+      "goal": "Improve strategic thinking",
+      "time_minutes": [20, 60],
+      "is_online": true,
+      "url": "https://lichess.org/training"
+    },
+    {
+      "id": "coding-puzzles",
+      "name": "Coding Puzzles",
+      "description": "Solve small programming problems to build problem-solving skills.",
+      "interest_type": ["digital"],
+      "environment": "indoor",
+      "style": ["cognitive-gains", "science-backed-focus"],
+      "mode": ["focus_mode"],
+      "goal": "Improve logic and coding skills",
+      "time_minutes": [20, 90],
+      "is_online": true,
+      "url": "https://leetcode.com/problemset/"
+    },
+    {
+      "id": "journaling",
+      "name": "Journaling",
+      "description": "Reflect daily using guided prompts for clarity and growth.",
+      "interest_type": ["solo_mindful"],
+      "environment": "indoor",
+      "style": ["grounding"],
+      "mode": ["low_energy"],
+      "goal": "Improve self-awareness",
+      "time_minutes": [10, 25],
+      "is_online": false
+    },
+    {
+      "id": "short-story-writing",
+      "name": "Short Story Writing",
+      "description": "Write small stories to improve imagination.",
+      "interest_type": ["creative"],
+      "environment": "indoor",
+      "style": ["cognitive-gains"],
+      "mode": ["bored", "focus_mode"],
+      "goal": "Enhance creativity",
+      "time_minutes": [20, 60],
+      "is_online": false
+    },
+    {
+      "id": "origami",
+      "name": "Origami",
+      "description": "Paper folding to improve precision and patience.",
+      "interest_type": ["creative"],
+      "environment": "indoor",
+      "style": ["tactile-calming"],
+      "mode": ["low_energy", "bored"],
+      "goal": "Improve hand coordination",
+      "time_minutes": [15, 40],
+      "is_online": false
+    },
+    {
+      "id": "diy-crafts",
+      "name": "DIY Crafts",
+      "description": "Hands-on creative projects.",
+      "interest_type": ["creative"],
+      "environment": "indoor",
+      "style": ["tactile-calming"],
+      "mode": ["bored"],
+      "goal": "Build creativity and problem solving",
+      "time_minutes": [30, 90],
+      "is_online": false
+    },
+    {
+      "id": "balcony-gardening",
+      "name": "Balcony Gardening",
+      "description": "Grow small plants and connect with nature.",
+      "interest_type": ["outdoor"],
+      "environment": "outdoor",
+      "style": ["grounding"],
+      "mode": ["low_energy"],
+      "goal": "Reduce stress and build patience",
+      "time_minutes": [15, 30],
+      "is_online": false
+    },
+    {
+      "id": "mindful-cooking",
+      "name": "Mindful Cooking",
+      "description": "Cook with attention and awareness.",
+      "interest_type": ["creative"],
+      "environment": "indoor",
+      "style": ["grounding"],
+      "mode": ["low_energy", "bored"],
+      "goal": "Improve focus and life skills",
+      "time_minutes": [30, 90],
+      "is_online": false
+    },
+    {
+      "id": "debate-practice",
+      "name": "Debate Practice",
+      "description": "Structured argument discussions.",
+      "interest_type": ["social"],
+      "environment": "either",
+      "style": ["cognitive-gains"],
+      "mode": ["focus_mode"],
+      "goal": "Improve communication and reasoning",
+      "time_minutes": [20, 60],
+      "is_online": true,
+      "url": "https://www.kialo.com/"
+    },
+    {
+      "id": "idea-generation",
+      "name": "Idea Generation",
+      "description": "Generate multiple ideas daily.",
+      "interest_type": ["creative", "digital"],
+      "environment": "indoor",
+      "style": ["cognitive-gains"],
+      "mode": ["bored"],
+      "goal": "Boost creativity and thinking speed",
+      "time_minutes": [10, 20],
+      "is_online": false
+    }
+  ]
+}
+

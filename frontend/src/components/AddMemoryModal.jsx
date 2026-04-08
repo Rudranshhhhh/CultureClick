@@ -45,9 +45,19 @@ export default function AddMemoryModal({
     setLoading(true);
 
     try {
-      const res = await createMemory(user.id, selectedHobby, note, rating);
+      const selected = likedHobbies.find((h) => h._id === selectedHobby) || initialHobby;
+      const extras =
+        selected && initialHobby && selected._id === initialHobby._id
+          ? {
+              hobby_name: initialHobby?.name || '',
+              hobby_category: initialHobby?.category || '',
+              hobby_emoji: initialHobby?.emoji || '',
+            }
+          : {};
+
+      const res = await createMemory(user.id, selectedHobby, note, rating, '', extras);
       // Attach hobby info for immediate display
-      const hobby = likedHobbies.find((h) => h._id === selectedHobby) || initialHobby;
+      const hobby = selected || initialHobby;
       const memory = {
         ...res.data.memory,
         hobby_name: hobby?.name || 'Unknown',

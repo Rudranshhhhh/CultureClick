@@ -57,10 +57,11 @@ export const getBuddyChatReply = (message = '') =>
 export const getMemories = (userId) =>
   api.get(`/api/memories?user_id=${userId}`);
 
-export const createMemory = (userId, hobbyId, note, rating, photoUrl = '') =>
+export const createMemory = (userId, hobbyId, note, rating, photoUrl = '', extras = {}) =>
   api.post('/api/memories', {
     user_id: userId,
     hobby_id: hobbyId,
+    ...extras,
     note,
     rating,
     photo_url: photoUrl,

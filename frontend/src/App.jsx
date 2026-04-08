@@ -11,6 +11,7 @@ import Onboarding from './pages/Onboarding';
 import SwipePage from './pages/SwipePage';
 import BuddyChat from './pages/BuddyChat';
 import Board from './pages/Board';
+import FocusSession from './pages/FocusSession';
 import './App.css';
 
 function ProtectedRoute({ children }) {
@@ -66,6 +67,7 @@ export default function App() {
 
               {/* Protected routes */}
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+              <Route path="/focus/:hobbyId" element={<ProtectedRoute><FocusSession /></ProtectedRoute>} />
               <Route path="/swipe" element={<ProtectedRoute><SwipePage /></ProtectedRoute>} />
               <Route path="/buddy" element={<ProtectedRoute><BuddyChat /></ProtectedRoute>} />
               <Route path="/board" element={<ProtectedRoute><Board /></ProtectedRoute>} />

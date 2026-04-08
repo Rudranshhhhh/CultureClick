@@ -25,13 +25,18 @@ def get_memories():
         # Attach hobby name if available
         try:
             hobby = db.hobbies.find_one({"_id": ObjectId(m.get("hobby_id", ""))})
-            m["hobby_name"] = hobby["name"] if hobby else "Unknown"
-            m["hobby_emoji"] = hobby.get("emoji", "🎯") if hobby else "🎯"
-            m["hobby_category"] = hobby.get("category", "") if hobby else ""
+            if hobby:
+                m["hobby_name"] = hobby.get("name", m.get("hobby_name", "Unknown"))
+                m["hobby_emoji"] = hobby.get("emoji", m.get("hobby_emoji", "🎯"))
+                m["hobby_category"] = hobby.get("category", m.get("hobby_category", ""))
+            else:
+                m["hobby_name"] = m.get("hobby_name") or "Unknown"
+                m["hobby_emoji"] = m.get("hobby_emoji") or "🎯"
+                m["hobby_category"] = m.get("hobby_category") or ""
         except Exception:
-            m["hobby_name"] = "Unknown"
-            m["hobby_emoji"] = "🎯"
-            m["hobby_category"] = ""
+            m["hobby_name"] = m.get("hobby_name") or "Unknown"
+            m["hobby_emoji"] = m.get("hobby_emoji") or "🎯"
+            m["hobby_category"] = m.get("hobby_category") or ""
 
     return jsonify({"memories": memories})
 
@@ -43,6 +48,9 @@ def create_memory():
     data = MemorySchema().load(request.json or {})
     user_id = get_jwt_identity()
     hobby_id = data["hobby_id"]
+    hobby_name = data.get("hobby_name", "")
+    hobby_category = data.get("hobby_category", "")
+    hobby_emoji = data.get("hobby_emoji", "")
     note = data["note"]
     rating = data["rating"]
     photo_url = data["photo_url"]
@@ -50,6 +58,9 @@ def create_memory():
     memory = {
         "user_id": user_id,
         "hobby_id": hobby_id,
+        "hobby_name": hobby_name,
+        "hobby_category": hobby_category,
+        "hobby_emoji": hobby_emoji,
         "note": note,
         "rating": min(max(int(rating), 1), 5),
         "photo_url": photo_url,
