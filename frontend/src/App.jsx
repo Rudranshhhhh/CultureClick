@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -9,17 +10,37 @@ import Board from './pages/Board';
 import './App.css';
 
 function ProtectedRoute({ children }) {
+=======
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import Swipe from "./pages/Swipe";
+import Buddy from "./pages/Buddy";
+import Board from "./pages/Board";
+
+export default function App() {
+>>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
+<<<<<<< HEAD
       <div className="app-loading">
         <div className="app-loading-spinner">🎯</div>
         <p>Loading CultureClick...</p>
+=======
+      <div className="app-shell">
+        <div className="page">
+          <div className="empty-state">
+            <div className="spinner" />
+          </div>
+        </div>
+>>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
       </div>
     );
   }
 
+<<<<<<< HEAD
   if (!user) return <Navigate to="/" replace />;
   return children;
 }
@@ -61,3 +82,21 @@ export default function App() {
     </BrowserRouter>
   );
 }
+=======
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <div className="app-shell">
+      <Routes>
+        <Route path="/swipe" element={<Swipe />} />
+        <Route path="/buddy" element={<Buddy />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="*" element={<Navigate to="/swipe" replace />} />
+      </Routes>
+      <Navbar />
+    </div>
+  );
+}
+>>>>>>> 1a62fd007f6a46adb16d418a975995921939f395

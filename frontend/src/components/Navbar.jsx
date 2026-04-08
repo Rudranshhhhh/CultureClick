@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './Navbar.css';
@@ -34,6 +35,25 @@ export default function Navbar() {
           );
         })}
       </div>
+=======
+import { NavLink } from "react-router-dom";
+
+export default function Navbar() {
+  return (
+    <nav className="bottom-nav">
+      <NavLink to="/swipe" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+        <span className="nav-icon">🧭</span>
+        <span className="nav-label">Explore</span>
+      </NavLink>
+      <NavLink to="/buddy" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+        <span className="nav-icon">🤖</span>
+        <span className="nav-label">Buddy</span>
+      </NavLink>
+      <NavLink to="/board" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+        <span className="nav-icon">📸</span>
+        <span className="nav-label">Board</span>
+      </NavLink>
+>>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
     </nav>
   );
 }
