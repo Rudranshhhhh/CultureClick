@@ -1,0 +1,134 @@
+/* ═══════════════════════════════════════════════════════════════
+   Hobby Card (Swipeable)
+   ═══════════════════════════════════════════════════════════════ */
+
+.hobby-card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.hobby-card.is-top {
+  cursor: grab;
+}
+
+.hobby-card.is-top:active {
+  cursor: grabbing;
+}
+
+/* ── Emoji Area ──────────────────────────────────────────────── */
+.card-emoji {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  background: var(--accent-gradient-subtle);
+  position: relative;
+}
+
+/* ── Card Body ───────────────────────────────────────────────── */
+.card-body {
+  flex: 1;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+}
+
+.card-meta {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.meta-pill {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+}
+
+/* ── Swipe Overlays ──────────────────────────────────────────── */
+.swipe-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  border-radius: var(--radius-xl);
+}
+
+.swipe-overlay span {
+  font-size: 72px;
+  font-weight: 800;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.like-overlay {
+  background: rgba(52, 211, 153, 0.2);
+  border: 3px solid var(--success);
+}
+.like-overlay span {
+  color: var(--success);
+}
+
+.skip-overlay {
+  background: rgba(248, 113, 113, 0.2);
+  border: 3px solid var(--danger);
+}
+.skip-overlay span {
+  color: var(--danger);
+}
+
+.super-overlay {
+  background: rgba(245, 158, 11, 0.2);
+  border: 3px solid var(--gold);
+}
+.super-overlay span {
+  color: var(--gold);
+}

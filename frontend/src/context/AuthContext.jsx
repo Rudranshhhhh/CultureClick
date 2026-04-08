@@ -1,0 +1,75 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+import { guestLogin as apiGuestLogin, register as apiRegister, login as apiLogin, getMe } from '../api';
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('cc_token'));
+  const [loading, setLoading] = useState(true);
+
+  // Restore session on mount
+  useEffect(() => {
+    if (token) {
+      getMe()
+        .then((res) => {
+          setUser(res.data);
+          setLoading(false);
+        })
+        .catch(() => {
+          // Token expired or invalid
+          localStorage.removeItem('cc_token');
+          localStorage.removeItem('cc_user');
+          setToken(null);
+          setUser(null);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const saveSession = (data) => {
+    localStorage.setItem('cc_token', data.token);
+    localStorage.setItem('cc_user', JSON.stringify(data.user));
+    setToken(data.token);
+    setUser(data.user);
+  };
+
+  const guestLogin = async (city = 'New York') => {
+    const res = await apiGuestLogin(city);
+    saveSession(res.data);
+    return res.data;
+  };
+
+  const register = async (email, password, city) => {
+    const res = await apiRegister(email, password, city);
+    saveSession(res.data);
+    return res.data;
+  };
+
+  const login = async (email, password) => {
+    const res = await apiLogin(email, password);
+    saveSession(res.data);
+    return res.data;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('cc_token');
+    localStorage.removeItem('cc_user');
+    setToken(null);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, token, loading, guestLogin, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}

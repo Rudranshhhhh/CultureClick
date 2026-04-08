@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════════
+   Swipe Page
+   ═══════════════════════════════════════════════════════════════ */
+
+.swipe-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px var(--page-padding);
+  padding-bottom: calc(var(--nav-height) + 20px);
+  min-height: 100dvh;
+}
+
+/* ── Progress ────────────────────────────────────────────────── */
+.swipe-header {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.progress-emoji {
+  font-size: 18px;
+}
+
+.progress-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-card);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+}
+
+/* ── Card Stack ──────────────────────────────────────────────── */
+.card-stack-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.card-stack {
+  position: relative;
+  width: 340px;
+  height: 440px;
+  max-width: calc(100vw - 40px);
+}
+
+/* ── Loading / Done ──────────────────────────────────────────── */
+.swipe-loading {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  font-size: 48px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.all-done {
+  text-align: center;
+  padding: 40px;
+}
+
+.done-emoji {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.all-done h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.all-done p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* ── Action Toast ────────────────────────────────────────────── */
+.action-toast {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(12px);
+}
+
+.action-toast.like {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: var(--success);
+}
+
+.action-toast.skip {
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: var(--danger);
+}
+
+.action-toast.superlike {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--gold);
+}
+
+.action-hobby-name {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* ── Swipe Hints ─────────────────────────────────────────────── */
+.swipe-hints {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 340px;
+  padding: 16px 0;
+}
+
+.hint {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hint-skip { color: var(--danger); }
+.hint-super { color: var(--gold); }
+.hint-like { color: var(--success); }

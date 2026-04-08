@@ -1,0 +1,197 @@
+/* ═══════════════════════════════════════════════════════════════
+   Landing Page
+   ═══════════════════════════════════════════════════════════════ */
+
+.landing-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 40px var(--page-padding);
+}
+
+/* ── Gradient Orbs ───────────────────────────────────────────── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.4;
+}
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-primary);
+  top: -100px;
+  right: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #e879f9;
+  bottom: -50px;
+  left: -80px;
+  animation: float 6s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  background: #22d3ee;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 10s ease-in-out infinite;
+  opacity: 0.2;
+}
+
+/* ── Floating Emojis ─────────────────────────────────────────── */
+.emoji-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.floating-emoji {
+  position: absolute;
+  animation: float 4s ease-in-out infinite;
+  opacity: 0.15;
+  user-select: none;
+}
+
+/* ── Content ─────────────────────────────────────────────────── */
+.landing-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+}
+
+.landing-hero {
+  margin-bottom: 40px;
+}
+
+.logo-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.landing-title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.landing-subtitle {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 300;
+}
+.landing-subtitle em {
+  color: var(--accent-secondary);
+  font-style: italic;
+}
+
+.landing-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 320px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.landing-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-lg {
+  padding: 16px 40px;
+  font-size: 17px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.landing-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.landing-divider::before,
+.landing-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-links {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+.auth-links .btn-secondary {
+  flex: 1;
+}
+
+/* ── Auth Form ───────────────────────────────────────────────── */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.auth-form h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.auth-error {
+  color: var(--danger);
+  font-size: 13px;
+  padding: 8px 12px;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.btn-back {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px;
+  transition: color var(--transition-fast);
+}
+.btn-back:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+  .landing-title {
+    font-size: 36px;
+  }
+  .landing-subtitle {
+    font-size: 17px;
+  }
+  .logo-icon {
+    font-size: 48px;
+  }
+}
