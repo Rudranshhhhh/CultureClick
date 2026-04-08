@@ -6,7 +6,7 @@ import './HobbyCard.css';
 const SWIPE_THRESHOLD = 100;
 const SWIPE_UP_THRESHOLD = 80;
 
-export default function HobbyCard({ hobby, index, isTop, onSwipe }) {
+export default function HobbyCard({ hobby, index, isTop, onSwipe, onDoNow }) {
   const [exitDir, setExitDir] = useState(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -113,6 +113,20 @@ export default function HobbyCard({ hobby, index, isTop, onSwipe }) {
               {hobby.indoor ? <Home size={16} /> : <Sun size={16} />}
               {hobby.indoor ? 'Indoor' : 'Outdoor'}
             </span>
+          )}
+          {isTop && (
+            <button
+              type="button"
+              className="meta-pill do-now-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDoNow?.(hobby);
+              }}
+              title="Start a quick session"
+              style={{ marginLeft: 'auto' }}
+            >
+              Do this now
+            </button>
           )}
         </div>
       </div>

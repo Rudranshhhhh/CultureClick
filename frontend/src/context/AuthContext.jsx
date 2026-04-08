@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { guestLogin as apiGuestLogin, register as apiRegister, login as apiLogin, getMe } from '../api';
+import { guestLogin as apiGuestLogin, register as apiRegister, login as apiLogin, firebaseLogin as apiFirebaseLogin, getMe } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -7,6 +7,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('cc_token'));
   const [loading, setLoading] = useState(true);
+
+  const refreshMe = async () => {
+    if (!token) return null;
+    const res = await getMe();
+    setUser(res.data);
+    return res.data;
+  };
 
   // Restore session on mount
   useEffect(() => {
@@ -52,6 +59,12 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
+  const firebaseLogin = async (idToken) => {
+    const res = await apiFirebaseLogin(idToken);
+    saveSession(res.data);
+    return res.data;
+  };
+
   const logout = () => {
     localStorage.removeItem('cc_token');
     setToken(null);
@@ -59,7 +72,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, guestLogin, register, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, guestLogin, register, login, firebaseLogin, logout, refreshMe }}>
       {children}
     </AuthContext.Provider>
   );

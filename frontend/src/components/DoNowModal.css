@@ -1,0 +1,75 @@
+/* Minimal styling layered on existing modal styles */
+.do-now-modal {
+  max-width: 520px;
+}
+
+.do-now-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.do-now-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.do-now-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.do-now-title {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.do-now-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pill {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+}
+
+.pill.muted {
+  color: var(--text-muted);
+}
+
+.do-now-steps {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.do-now-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.do-now-done {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.do-now-done-text {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+

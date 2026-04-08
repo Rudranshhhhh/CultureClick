@@ -3,6 +3,8 @@ import { AnimatePresence } from "framer-motion";
 import HobbyCard from "../components/HobbyCard";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
+import DoNowModal from "../components/DoNowModal";
+import AddMemoryModal from "../components/AddMemoryModal";
 
 export default function Swipe() {
   const { user } = useAuth();
@@ -10,6 +12,8 @@ export default function Swipe() {
   const [progress, setProgress] = useState({ discovered: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
+  const [doNowHobby, setDoNowHobby] = useState(null);
+  const [pinDraft, setPinDraft] = useState(null); // { hobby, note, rating }
 
   const fetchNext = useCallback(async () => {
     if (!user) return;
@@ -102,6 +106,7 @@ export default function Swipe() {
                     hobby={hobby}
                     isTop={i === 0}
                     onSwipe={handleSwipe}
+                    onDoNow={(h) => setDoNowHobby(h)}
                     style={{
                       zIndex: 3 - i,
                       scale: 1 - i * 0.05,
@@ -127,6 +132,31 @@ export default function Swipe() {
           </>
         )}
       </div>
+
+      <AnimatePresence>
+        {doNowHobby && (
+          <DoNowModal
+            hobby={doNowHobby}
+            onClose={() => setDoNowHobby(null)}
+            onPinMemory={(draft) => {
+              setDoNowHobby(null);
+              setPinDraft(draft);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {pinDraft?.hobby && (
+          <AddMemoryModal
+            onClose={() => setPinDraft(null)}
+            onCreated={() => setPinDraft(null)}
+            initialHobby={pinDraft.hobby}
+            initialNote={pinDraft.note || ""}
+            initialRating={pinDraft.rating || 5}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

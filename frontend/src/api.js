@@ -26,8 +26,15 @@ export const register = (email, password, city) =>
 export const login = (email, password) =>
   api.post('/api/auth/login', { email, password });
 
+export const firebaseLogin = (idToken) =>
+  api.post('/api/auth/firebase', { idToken });
+
 export const getMe = () =>
   api.get('/api/auth/me');
+
+// ── Onboarding ────────────────────────────────────────────────
+export const saveOnboardingPreferences = (answers) =>
+  api.post('/api/onboarding/preferences', { answers });
 
 // ── Hobbies / Swipe ──────────────────────────────────────────
 export const getNextHobby = (userId) =>
@@ -42,6 +49,9 @@ export const getLikedHobbies = (userId) =>
 // ── Buddy ────────────────────────────────────────────────────
 export const getBuddySuggestion = (userId, message = '') =>
   api.post('/api/buddy/suggest', { user_id: userId, message });
+
+export const getBuddyChatReply = (message = '') =>
+  api.post('/api/buddy/chat', { message });
 
 // ── Memories ─────────────────────────────────────────────────
 export const getMemories = (userId) =>

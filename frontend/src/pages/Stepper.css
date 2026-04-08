@@ -1,0 +1,58 @@
+.rb-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rb-stepper-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rb-stepper-track {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rb-stepper-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.rb-stepper-dot.active {
+  background: var(--accent-gradient-subtle);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--text-primary);
+}
+
+.rb-stepper-dot.done {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: var(--text-primary);
+}
+
+.rb-stepper-meta {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.rb-stepper-body {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.rb-stepper-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+

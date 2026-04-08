@@ -91,6 +91,18 @@
   border-radius: var(--radius-full);
 }
 
+.do-now-btn {
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.do-now-btn:hover {
+  transform: translateY(-1px);
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
 /* ── Swipe Overlays ──────────────────────────────────────────── */
 .swipe-overlay {
   position: absolute;

@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import SwipePage from './pages/SwipePage';
 import BuddyChat from './pages/BuddyChat';
 import Board from './pages/Board';
@@ -14,6 +15,7 @@ import './App.css';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -25,6 +27,9 @@ function ProtectedRoute({ children }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+  if (!user.onboarding_complete && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
   return children;
 }
 
@@ -60,6 +65,7 @@ export default function App() {
               <Route path="/register" element={user ? <Navigate to="/swipe" replace /> : <Register />} />
 
               {/* Protected routes */}
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/swipe" element={<ProtectedRoute><SwipePage /></ProtectedRoute>} />
               <Route path="/buddy" element={<ProtectedRoute><BuddyChat /></ProtectedRoute>} />
               <Route path="/board" element={<ProtectedRoute><Board /></ProtectedRoute>} />

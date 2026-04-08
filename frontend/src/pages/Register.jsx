@@ -17,8 +17,9 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      await register(email, password, city || "New York");
-      navigate("/swipe");
+      const res = await register(email, password, city || "New York");
+      const onboarded = Boolean(res?.user?.onboarding_complete);
+      navigate(onboarded ? "/swipe" : "/onboarding");
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed");
     }

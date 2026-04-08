@@ -1,0 +1,135 @@
+.onboarding-page {
+  display: flex;
+  justify-content: center;
+  padding: 22px 16px;
+}
+
+.onboarding-card {
+  width: 100%;
+  max-width: 520px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.onboarding-subtitle {
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.onboarding-hint {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.onboarding-error {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--text-primary);
+}
+
+.onboarding-section {
+  margin-top: 16px;
+}
+
+.onboarding-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  padding: 10px 12px;
+  border-radius: 999px;
+  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.chip.active {
+  background: var(--accent-gradient-subtle);
+  color: var(--text-primary);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.seg-btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: var(--text-secondary);
+}
+
+.seg-btn.active {
+  background: var(--accent-gradient-subtle);
+  color: var(--text-primary);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.range-row input[type="range"] {
+  width: 100%;
+}
+
+.range-pill {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.onboarding-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.onboarding-final-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+

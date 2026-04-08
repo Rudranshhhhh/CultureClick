@@ -4,12 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import { getLikedHobbies, createMemory } from '../api';
 import './AddMemoryModal.css';
 
-export default function AddMemoryModal({ onClose, onCreated }) {
+export default function AddMemoryModal({
+  onClose,
+  onCreated,
+  initialHobby = null,
+  initialNote = '',
+  initialRating = 5,
+}) {
   const { user } = useAuth();
   const [likedHobbies, setLikedHobbies] = useState([]);
-  const [selectedHobby, setSelectedHobby] = useState('');
-  const [note, setNote] = useState('');
-  const [rating, setRating] = useState(5);
+  const [selectedHobby, setSelectedHobby] = useState(initialHobby?._id || '');
+  const [note, setNote] = useState(initialNote);
+  const [rating, setRating] = useState(initialRating);
   const [loading, setLoading] = useState(false);
   const [fetchingHobbies, setFetchingHobbies] = useState(true);
 
@@ -17,14 +23,21 @@ export default function AddMemoryModal({ onClose, onCreated }) {
     const fetchLiked = async () => {
       try {
         const res = await getLikedHobbies(user.id);
-        setLikedHobbies(res.data.hobbies || []);
+        const liked = res.data.hobbies || [];
+        if (initialHobby && !liked.some((h) => h._id === initialHobby._id)) {
+          setLikedHobbies([initialHobby, ...liked]);
+        } else {
+          setLikedHobbies(liked);
+        }
       } catch (err) {
         console.error('Failed to fetch liked hobbies:', err);
+        // If this is opened from "Do this now", we still want it usable.
+        if (initialHobby) setLikedHobbies([initialHobby]);
       }
       setFetchingHobbies(false);
     };
     fetchLiked();
-  }, [user?.id]);
+  }, [user?.id, initialHobby]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +47,7 @@ export default function AddMemoryModal({ onClose, onCreated }) {
     try {
       const res = await createMemory(user.id, selectedHobby, note, rating);
       // Attach hobby info for immediate display
-      const hobby = likedHobbies.find((h) => h._id === selectedHobby);
+      const hobby = likedHobbies.find((h) => h._id === selectedHobby) || initialHobby;
       const memory = {
         ...res.data.memory,
         hobby_name: hobby?.name || 'Unknown',
@@ -124,7 +137,7 @@ export default function AddMemoryModal({ onClose, onCreated }) {
           <button
             className="btn-primary"
             type="submit"
-            disabled={loading || !selectedHobby || likedHobbies.length === 0}
+            disabled={loading || !selectedHobby}
             style={{ width: '100%' }}
           >
             {loading ? '⏳ Saving...' : '📸 Save Memory'}

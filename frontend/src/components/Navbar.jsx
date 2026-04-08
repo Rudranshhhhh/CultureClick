@@ -13,7 +13,7 @@ export default function Navbar() {
   const location = useLocation();
 
   // Hide on landing and auth pages
-  if (['/', '/login', '/register'].includes(location.pathname)) return null;
+  if (['/', '/login', '/register', '/onboarding'].includes(location.pathname)) return null;
 
   return (
     <nav className="navbar" style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)' }}>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { getBuddySuggestion } from '../api';
+import { getBuddySuggestion, getBuddyChatReply } from '../api';
 import './BuddyChat.css';
 
 function TypingText({ text, speed = 20, onDone }) {
@@ -46,13 +46,29 @@ export default function BuddyChat() {
   useEffect(() => {
     setMessages([{
       type: 'buddy',
-      text: "Hey there! 👋 I'm Buddy, your personal hobby advisor. Let me find the perfect activity for you today!",
+      text: "Hey there! 👋 I'm Buddy. Ask me anything — or tap “Another idea” if you want a hobby suggestion.",
       isGreeting: true,
     }]);
-
-    // Auto-fetch first suggestion
-    fetchSuggestion('');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchChatReply = async (msg) => {
+    if (!user?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await getBuddyChatReply(msg);
+      const reply = res.data?.reply || "I'm not sure what to say — try again?";
+      setMessages((prev) => [
+        ...prev,
+        { type: 'buddy', text: reply, timestamp: new Date() },
+      ]);
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        { type: 'buddy', text: "Hmm, I'm having trouble thinking right now. Try again in a moment!", timestamp: new Date() },
+      ]);
+    }
+    setIsLoading(false);
+  };
 
   const fetchSuggestion = async (msg) => {
     if (!user?.id) return;
@@ -96,7 +112,8 @@ export default function BuddyChat() {
       setInput('');
     }
 
-    fetchSuggestion(msg);
+    // Chat mode: respond like a bot to any user question.
+    fetchChatReply(msg);
   };
 
   const handleAnother = () => {

@@ -28,6 +28,8 @@ def register():
         "city": city,
         "liked_categories": {},
         "skipped_categories": {},
+        "onboarding_complete": False,
+        "preference_profile": {},
         "is_guest": False,
     }
     result = db.users.insert_one(user)
@@ -39,6 +41,7 @@ def register():
             "id": str(result.inserted_id),
             "email": email,
             "city": city,
+            "onboarding_complete": False,
         },
     }), 201
 
@@ -64,6 +67,7 @@ def login():
             "id": str(user["_id"]),
             "email": user["email"],
             "city": user.get("city", ""),
+            "onboarding_complete": user.get("onboarding_complete", False),
         },
     })
 
@@ -79,6 +83,8 @@ def guest_login():
         "city": city,
         "liked_categories": {},
         "skipped_categories": {},
+        "onboarding_complete": False,
+        "preference_profile": {},
         "is_guest": True,
     }
     result = db.users.insert_one(user)
@@ -91,6 +97,7 @@ def guest_login():
             "email": user["email"],
             "city": city,
             "is_guest": True,
+            "onboarding_complete": False,
         },
     }), 201
 
@@ -110,4 +117,6 @@ def get_me():
         "is_guest": user.get("is_guest", False),
         "liked_categories": user.get("liked_categories", {}),
         "skipped_categories": user.get("skipped_categories", {}),
+        "onboarding_complete": user.get("onboarding_complete", False),
+        "preference_profile": user.get("preference_profile", {}),
     })

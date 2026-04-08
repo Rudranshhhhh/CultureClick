@@ -27,11 +27,15 @@ from routes.auth import auth_bp
 from routes.hobbies import hobbies_bp
 from routes.buddy import buddy_bp
 from routes.memories import memories_bp
+from routes.onboarding import onboarding_bp
+from routes.firebase_auth import firebase_auth_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(hobbies_bp)
 app.register_blueprint(buddy_bp)
 app.register_blueprint(memories_bp)
+app.register_blueprint(onboarding_bp)
+app.register_blueprint(firebase_auth_bp)
 
 
 @app.route("/")
