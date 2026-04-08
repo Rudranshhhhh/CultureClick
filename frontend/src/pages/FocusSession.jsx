@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getHobbyById } from '../api';
+import { getHobbyById, getBuddyFocusSetup } from '../api';
 import { getAllDomainHobbies, normalizeHobbyForFocus } from '../utils/hobbyMatch';
 import { createDistractionTracker } from '../utils/focusSession';
 import AddMemoryModal from '../components/AddMemoryModal';
@@ -100,6 +100,25 @@ export default function FocusSession() {
   const [motivation] = useState(() => MOTIVATION[Math.floor(Math.random() * MOTIVATION.length)]);
   const [resourceUrl, setResourceUrl] = useState('');
   const [embedWanted, setEmbedWanted] = useState(true);
+
+  const [focusSetup, setFocusSetup] = useState(null);
+  const [setupLoading, setSetupLoading] = useState(false);
+
+  useEffect(() => {
+    if (hobby) {
+      setSetupLoading(true);
+      getBuddyFocusSetup(hobby.name)
+        .then((res) => {
+          setFocusSetup(res.data);
+        })
+        .catch(() => {
+          setFocusSetup(null);
+        })
+        .finally(() => {
+          setSetupLoading(false);
+        });
+    }
+  }, [hobby]);
 
   const timerRef = useRef(null);
   const trackerRef = useRef(null);
@@ -277,6 +296,23 @@ export default function FocusSession() {
           </div>
           <button className="btn-ghost" onClick={() => navigate(-1)}>Close</button>
         </div>
+
+        {setupLoading && (
+          <div className="focus-setup-card muted" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+            <em>Buddy is preparing your session...</em>
+          </div>
+        )}
+
+        {focusSetup && !setupLoading && (
+          <div className="focus-setup-card" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--primary-color)' }}>
+            <p style={{ margin: '0 0 0.75rem 0', fontWeight: '500' }}>{focusSetup.intro}</p>
+            <ul style={{ margin: 0, paddingLeft: '1.25rem', opacity: 0.9 }}>
+              {focusSetup.tasks?.map((task, i) => (
+                <li key={i} style={{ marginBottom: '0.25rem' }}>{task}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {running && (
           <div className="stay-focused-banner">

@@ -5,6 +5,7 @@ from config import db
 from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context
 from services.weather_service import get_weather
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context, get_buddy_focus_setup
 
 buddy_bp = Blueprint("buddy", __name__)
 
@@ -94,3 +95,12 @@ def chat():
         user_context=user_context,
     )
     return jsonify({"reply": reply})
+
+@buddy_bp.route("/api/buddy/focus-setup", methods=["POST"])
+@jwt_required()
+def focus_setup():
+    """Get a targeted introduction and tasks for a focus session."""
+    data = request.json or {}
+    hobby_name = data.get("hobby_name", "your hobby")
+    setup = get_buddy_focus_setup(hobby_name)
+    return jsonify(setup)

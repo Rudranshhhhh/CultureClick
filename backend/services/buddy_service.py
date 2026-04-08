@@ -318,3 +318,70 @@ Do NOT use JSON for this regular conversational endpoint, return plain text."""
         traceback.print_exc()
         print(f"[Buddy Chat] Groq API error: {e}")
         return "Sorry, I'm having trouble thinking right now."
+
+def get_buddy_focus_setup(hobby_name):
+    """
+    Call Groq (LLaMA) to generate a focus session introductory message and tasks for a specific hobby.
+    """
+    if not GROQ_API_KEY:
+        return {
+            "intro": f"Let's focus on {hobby_name}. Take a deep breath and start small.",
+            "tasks": [
+                "Set a clear goal for this session.",
+                "Remove any immediate distractions.",
+                "Start with a 5-minute warm-up."
+            ]
+        }
+
+    try:
+        from groq import Groq
+        client = Groq(api_key=GROQ_API_KEY)
+
+        system_prompt = f"""You are Buddy, the AI accountability and hobby-building coach for CultureClick.
+The user is about to start a focused session for their hobby: "{hobby_name}".
+Your job is to provide:
+1. A short, encouraging introductory message specifically tailored to "{hobby_name}".
+2. A list of 3 practical, actionable micro-tasks or steps they can do during this session to make progress.
+
+Return ONLY valid JSON with these fields:
+{{
+  "intro": "A 1-2 sentence warm, encouraging introductory message",
+  "tasks": ["Task 1", "Task 2", "Task 3"]
+}}"""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Help me start a session for {hobby_name}."}
+        ]
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0.7,
+            max_tokens=300,
+        )
+
+        result_content = response.choices[0].message.content
+        result = json.loads(result_content)
+
+        if "intro" not in result:
+            result["intro"] = f"Let's focus on {hobby_name}. Take a deep breath and start small."
+        if "tasks" not in result:
+            result["tasks"] = ["Set a clear goal for this session.", "Remove any immediate distractions.", "Start with a 5-minute warm-up."]
+
+        return result
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"[Buddy Focus Setup] Groq API error: {e}")
+        return {
+            "intro": f"Let's focus on {hobby_name}. Take a deep breath and start small.",
+            "tasks": [
+                "Set a clear goal for this session.",
+                "Remove any immediate distractions.",
+                "Start with a 5-minute warm-up."
+            ]
+        }
+

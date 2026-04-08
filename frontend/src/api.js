@@ -89,6 +89,9 @@ export const getBuddyChatReply = (message = '') =>
 export const getBuddyContext = () =>
   api.get('/api/buddy/context');
 
+export const getBuddyFocusSetup = (hobbyName) =>
+  api.post('/api/buddy/focus-setup', { hobby_name: hobbyName });
+
 // ── Memories ─────────────────────────────────────────────────
 export const getMemories = (userId) =>
   api.get(`/api/memories?user_id=${userId}`);
