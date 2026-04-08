@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { Play, ArrowRight, UserProfile, AiRecommend, ImageSearch, DataRegular } from '@carbon/icons-react';
@@ -43,7 +43,6 @@ const STATS = [
 
 export default function Landing() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <div className="landing-page">
@@ -57,11 +56,11 @@ export default function Landing() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
             <h1 className="hero-title">
-              Optimize Your<br />
-              Downtime Data.
+              Discover hobbies<br />
+              that click with you.
             </h1>
             <p className="hero-subtitle">
-              Evaluate activities, receive contextual AI recommendations, and catalog your experiences using CultureClick's advanced discovery engine.
+              Swipe through curated activities, share what you’re into, and save favorites in one place. Buddy helps with tailored ideas when you need them—then start a focus session when you’re ready to try something new.
             </p>
 
             <div className="hero-actions">
@@ -75,14 +74,9 @@ export default function Landing() {
                   </a>
                 </>
               ) : (
-                <>
-                  <Link to="/register" className="btn-primary">
-                    Create Account <ArrowRight size={16} />
-                  </Link>
-                  <Link to="/login" className="btn-secondary">
-                    Log In <ArrowRight size={16} />
-                  </Link>
-                </>
+                <Link to="/register" className="btn-primary">
+                  Create Account <ArrowRight size={16} />
+                </Link>
               )}
             </div>
           </motion.div>

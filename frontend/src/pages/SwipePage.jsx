@@ -97,7 +97,7 @@ export default function SwipePage() {
         setAllDone(true);
         setProgress(res.data.progress);
       }
-    } catch {}
+    } catch { }
   };
 
   const handleOpenDoNow = (hobby) => {
@@ -126,21 +126,21 @@ export default function SwipePage() {
     try {
       await checkinDoNowTrack(trackId);
       await refreshTracks();
-    } catch {}
+    } catch { }
   };
 
   const handleExtend = async (trackId, extraDays = 7) => {
     try {
       await extendDoNowTrack(trackId, extraDays);
       await refreshTracks();
-    } catch {}
+    } catch { }
   };
 
   const handleComplete = async (trackId) => {
     try {
       await completeDoNowTrack(trackId);
       await refreshTracks();
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -246,9 +246,9 @@ export default function SwipePage() {
               exit={{ opacity: 0, y: -10, scale: 0.9 }}
               transition={{ duration: 0.3 }}
             >
-              {lastAction.action === 'like' && <><FavoriteFilled size={20} style={{fill: 'var(--success)'}}/> Liked</>}
-              {lastAction.action === 'skip' && <><SkipForwardFilled size={20} style={{fill: 'var(--danger)'}}/> Skipped</>}
-              {lastAction.action === 'superlike' && <><StarFilled size={20} style={{fill: 'var(--warning)'}}/> Superliked</>}
+              {lastAction.action === 'like' && <><FavoriteFilled size={20} style={{ fill: 'var(--success)' }} /> Liked</>}
+              {lastAction.action === 'skip' && <><SkipForwardFilled size={20} style={{ fill: 'var(--danger)' }} /> Skipped</>}
+              {lastAction.action === 'superlike' && <><StarFilled size={20} style={{ fill: 'var(--warning)' }} /> Superliked</>}
               <span className="action-hobby-name">{lastAction.hobbyName}</span>
             </motion.div>
           )}

@@ -38,6 +38,11 @@
   color: var(--text-primary);
 }
 
+.rb-stepper-dot:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .rb-stepper-meta {
   color: var(--text-muted);
   font-size: 13px;
@@ -54,5 +59,10 @@
   display: flex;
   gap: 10px;
   justify-content: space-between;
+}
+
+/* Step 1: no back button — keep primary action on the right */
+.rb-stepper-footer--first {
+  justify-content: flex-end;
 }
 

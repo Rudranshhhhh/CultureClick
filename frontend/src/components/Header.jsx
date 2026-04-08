@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Activity, Compass, Chat, Catalog, Menu, Close } from '@carbon/icons-react';
+import { Activity, Compass, Chat, Catalog, Menu, Close, UserAvatar } from '@carbon/icons-react';
 import './Header.css';
 
 export default function Header() {
@@ -9,12 +9,27 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
     setMenuOpen(false);
+    setAccountOpen(false);
   };
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setAccountOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [accountOpen]);
+
+  useEffect(() => {
+    setAccountOpen(false);
+  }, [location.pathname]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -52,21 +67,20 @@ export default function Header() {
         </nav>
 
         {/* Auth Buttons */}
-        <div className="header-actions">
+        <div className={`header-actions ${user ? 'header-actions--user' : ''}`}>
           {user ? (
-            <>
-              <span className="header-user">
-                <span className="header-user-avatar">
-                  {user.email?.charAt(0).toUpperCase()}
-                </span>
-                <span className="header-user-name">
-                  {user.is_guest ? 'Guest' : user.email?.split('@')[0]}
-                </span>
+            <button
+              type="button"
+              className="header-account-trigger"
+              onClick={() => setAccountOpen(true)}
+              aria-expanded={accountOpen}
+              aria-haspopup="dialog"
+            >
+              <span className="header-user-avatar" aria-hidden>
+                {user.email?.charAt(0).toUpperCase()}
               </span>
-              <button className="btn-secondary" onClick={handleLogout} style={{ padding: '8px 16px', fontSize: '14px' }}>
-                Log Out
-              </button>
-            </>
+              <span className="header-account-label">Account</span>
+            </button>
           ) : (
             <>
               <Link to="/login" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '14px' }}>Log In</Link>
@@ -90,7 +104,16 @@ export default function Header() {
               <Link to="/buddy" className="mobile-link" onClick={() => setMenuOpen(false)}>Buddy</Link>
               <Link to="/board" className="mobile-link" onClick={() => setMenuOpen(false)}>Board</Link>
               <div className="mobile-divider" />
-              <button className="mobile-link logout" onClick={handleLogout}>Log Out</button>
+              <button
+                type="button"
+                className="mobile-link"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setAccountOpen(true);
+                }}
+              >
+                Account
+              </button>
             </>
           ) : (
             <>
@@ -102,6 +125,48 @@ export default function Header() {
             </>
           )}
         </div>
+      )}
+
+      {user && accountOpen && (
+        <>
+          <button
+            type="button"
+            className="account-sidebar-backdrop"
+            aria-label="Close account menu"
+            onClick={() => setAccountOpen(false)}
+          />
+          <aside className="account-sidebar" role="dialog" aria-modal="true" aria-labelledby="account-sidebar-title">
+            <div className="account-sidebar-header">
+              <h2 id="account-sidebar-title" className="account-sidebar-title">
+                Account
+              </h2>
+              <button
+                type="button"
+                className="account-sidebar-close"
+                onClick={() => setAccountOpen(false)}
+                aria-label="Close"
+              >
+                <Close size={20} />
+              </button>
+            </div>
+            <p className="account-sidebar-email">
+              {user.is_guest ? 'Guest' : user.email}
+            </p>
+            <nav className="account-sidebar-nav">
+              <Link
+                to="/my-hobbies"
+                className="account-sidebar-link"
+                onClick={() => setAccountOpen(false)}
+              >
+                <UserAvatar size={18} />
+                Profile
+              </Link>
+              <button type="button" className="account-sidebar-link account-sidebar-link--danger" onClick={handleLogout}>
+                Log out
+              </button>
+            </nav>
+          </aside>
+        </>
       )}
     </header>
   );

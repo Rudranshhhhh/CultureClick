@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { saveOnboardingPreferences, skipOnboarding } from '../api';
+import { saveOnboardingPreferences } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Stepper, { Step } from './Stepper';
 import { buildDomainProfile, matchHobbies, saveDomainProfile } from '../utils/hobbyMatch';
@@ -38,18 +38,17 @@ export default function Onboarding() {
 
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
-  const [indoor, setIndoor] = useState('either'); // indoor|outdoor|either
+  const [indoor, setIndoor] = useState(null); // indoor|outdoor|either — null until user picks (step 3)
   const [timeMinutes, setTimeMinutes] = useState(30);
   const [notes, setNotes] = useState('');
   const [mode, setMode] = useState([]);
   const [pickedIds, setPickedIds] = useState([]); // right-swiped hobby IDs
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
-  const canSubmit = useMemo(() => categories.length > 0 || tags.length > 0 || mode.length > 0 || notes.trim().length > 0, [categories, tags, mode, notes]);
+  const [activeStepForHint, setActiveStepForHint] = useState(1);
 
   const domainProfile = useMemo(
-    () => buildDomainProfile({ categories, tags, indoor, timeMinutes, notes, mode }),
+    () => buildDomainProfile({ categories, tags, indoor: indoor ?? 'either', timeMinutes, notes, mode }),
     [categories, tags, indoor, timeMinutes, notes, mode]
   );
 
@@ -57,6 +56,53 @@ export default function Onboarding() {
     () => matchHobbies(domainProfile, { limit: 8 }),
     [domainProfile]
   );
+
+  const deck = useMemo(() => matches.map((m) => m.hobby), [matches]);
+
+  const isStepComplete = useCallback(
+    (step) => {
+      switch (step) {
+        case 1:
+          return categories.length >= 1;
+        case 2:
+          return tags.length >= 1;
+        case 3:
+          return indoor != null;
+        case 4:
+          return mode.length >= 1;
+        case 5:
+          return deck.length === 0 || pickedIds.length >= 1;
+        default:
+          return true;
+      }
+    },
+    [categories, tags, indoor, mode, deck.length, pickedIds]
+  );
+
+  const canSubmit = useMemo(
+    () => [1, 2, 3, 4, 5].every((s) => isStepComplete(s)),
+    [isStepComplete]
+  );
+
+  const validationHint = useMemo(() => {
+    if (isStepComplete(activeStepForHint)) return '';
+    switch (activeStepForHint) {
+      case 1:
+        return 'Pick at least one interest to continue.';
+      case 2:
+        return 'Pick at least one style to continue.';
+      case 3:
+        return 'Choose indoor, outdoor, or either to continue.';
+      case 4:
+        return 'Pick at least one mood (how you’re feeling) to continue.';
+      case 5:
+        return deck.length === 0
+          ? ''
+          : 'Swipe right on at least one hobby you like to finish onboarding.';
+      default:
+        return '';
+    }
+  }, [activeStepForHint, isStepComplete, deck.length]);
 
   const toggle = (arr, id, setArr) => {
     setArr((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -113,8 +159,6 @@ export default function Onboarding() {
     navigate(to);
   };
 
-  const deck = useMemo(() => matches.map((m) => m.hobby), [matches]);
-
   const handleDeckSwipe = (dir, hobby) => {
     if (dir === 'right') {
       setPickedIds((prev) => (prev.includes(hobby.id) ? prev : [...prev, hobby.id]));
@@ -147,10 +191,12 @@ export default function Onboarding() {
         </p>
 
         {error && <div className="onboarding-error">{error}</div>}
+        {validationHint && <div className="onboarding-validation-hint">{validationHint}</div>}
 
         <Stepper
           initialStep={1}
-          onStepChange={() => { }}
+          onStepChange={setActiveStepForHint}
+          isStepComplete={isStepComplete}
           onFinalStepCompleted={() => {
             if (!canSubmit || saving) return;
             persistOnboarding().then(() => navigate('/my-hobbies', { replace: true })).catch(() => { });
@@ -173,7 +219,7 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
-              <p className="onboarding-hint">Pick a few — this just helps Buddy start smarter.</p>
+              <p className="onboarding-hint">Pick at least one — this just helps Buddy start smarter.</p>
             </div>
           </Step>
 
@@ -192,6 +238,7 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
+              <p className="onboarding-hint">Pick at least one style.</p>
             </div>
           </Step>
 
@@ -214,14 +261,15 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
+              <p className="onboarding-hint">Pick one option (indoor, outdoor, or either).</p>
 
               <div className="onboarding-section">
                 <div className="onboarding-label">Time you usually have</div>
                 <div className="range-row">
                   <input
                     type="range"
-                    min={5}
-                    max={120}
+                    min={10}
+                    max={60}
                     step={5}
                     value={timeMinutes}
                     onChange={(e) => setTimeMinutes(e.target.value)}
@@ -247,6 +295,7 @@ export default function Onboarding() {
                   </button>
                 ))}
               </div>
+              <p className="onboarding-hint">Pick at least one mood. Notes below are optional.</p>
 
               <div className="onboarding-label">Anything else?</div>
               <textarea
@@ -256,44 +305,6 @@ export default function Onboarding() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={5}
               />
-
-              <div className="onboarding-final-actions">
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={async () => {
-                    if (saving) return;
-                    setSaving(true);
-                    setError('');
-                    try {
-                      await skipOnboarding();
-                      await refreshMe?.();
-                      navigate('/my-hobbies', { replace: true });
-                    } catch (e) {
-                      setError(e?.response?.data?.error || 'Could not skip onboarding. Please try again.');
-                    }
-                    setSaving(false);
-                  }}
-                  disabled={saving}
-                  style={{ width: '100%' }}
-                >
-                  Skip for now
-                </button>
-                <button
-                  type="button"
-                  className="btn-primary"
-                  disabled={!canSubmit || saving}
-                  onClick={async () => {
-                    try {
-                      await persistOnboarding();
-                      navigate('/my-hobbies', { replace: true });
-                    } catch { }
-                  }}
-                  style={{ width: '100%' }}
-                >
-                  {saving ? 'Saving…' : 'Save preferences'}
-                </button>
-              </div>
             </div>
           </Step>
 

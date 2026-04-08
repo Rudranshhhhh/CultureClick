@@ -46,6 +46,9 @@ export const getNextHobby = (userId) =>
 export const getAllHobbies = () =>
   api.get('/api/hobbies/all');
 
+export const getHobbyById = (hobbyId) =>
+  api.get(`/api/hobbies/item/${encodeURIComponent(hobbyId)}`);
+
 export const recordSwipe = (userId, hobbyId, action) =>
   api.post('/api/swipe', { user_id: userId, hobby_id: hobbyId, action });
 

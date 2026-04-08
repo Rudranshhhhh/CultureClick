@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addSelectedHobby, getAllHobbies, removeSelectedHobby } from '../api';
+import { Close } from '@carbon/icons-react';
 import './DiscoverPage.css';
 
 export default function DiscoverPage() {
@@ -7,6 +8,8 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
+  const [detailHobby, setDetailHobby] = useState(null);
+  const [addPending, setAddPending] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -22,6 +25,20 @@ export default function DiscoverPage() {
   useEffect(() => {
     fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (!detailHobby) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => {
+      if (e.key === 'Escape') setDetailHobby(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [detailHobby]);
 
   const categories = useMemo(
     () => ['all', ...Array.from(new Set(hobbies.map((h) => h.category).filter(Boolean)))],
@@ -53,17 +70,29 @@ export default function DiscoverPage() {
         await removeSelectedHobby(hobby._id);
       } else {
         await addSelectedHobby(hobby._id);
-        // Mirror on device so My Hobbies can show immediately.
         const raw = localStorage.getItem('cc_selected_hobbies') || '[]';
         const prevIds = JSON.parse(raw);
         if (!prevIds.includes(hobby._id)) {
           localStorage.setItem('cc_selected_hobbies', JSON.stringify([...prevIds, hobby._id]));
         }
       }
+      return true;
     } catch {
       setHobbies((prev) =>
         prev.map((h) => (h._id === hobby._id ? { ...h, selected: wasSelected } : h))
       );
+      return false;
+    }
+  };
+
+  const handleAddFromModal = async () => {
+    if (!detailHobby || detailHobby.selected || addPending) return;
+    setAddPending(true);
+    try {
+      const ok = await toggleSelect(detailHobby);
+      if (ok) setDetailHobby(null);
+    } finally {
+      setAddPending(false);
     }
   };
 
@@ -91,24 +120,98 @@ export default function DiscoverPage() {
 
       {loading ? (
         <div className="discover-loading">Loading hobbies...</div>
+      ) : filtered.length === 0 ? (
+        <div className="discover-empty">No hobbies match your filters. Try another category or search.</div>
       ) : (
         <div className="discover-grid">
           {filtered.map((h) => (
-            <div key={h._id} className="discover-card">
-              <div className="discover-card-top">
-                <span className="discover-cat">{h.category}</span>
-                <button
-                  type="button"
-                  className="select-btn"
-                  onClick={() => toggleSelect(h)}
-                >
-                  Add to My Hobbies
-                </button>
-              </div>
-              <h3>{h.name}</h3>
-              <p>{h.description}</p>
-            </div>
+            <button
+              key={h._id}
+              type="button"
+              className="discover-card discover-card--tile"
+              onClick={() => setDetailHobby(h)}
+            >
+              <span className="discover-cat">{h.category}</span>
+              <h3 className="discover-card-title">{h.name}</h3>
+              <p className="discover-card-preview">{h.description}</p>
+              <span className="discover-card-cta">View details</span>
+            </button>
           ))}
+        </div>
+      )}
+
+      {detailHobby && (
+        <div className="discover-modal-root">
+          <button
+            type="button"
+            className="discover-modal-backdrop"
+            aria-label="Close details"
+            onClick={() => setDetailHobby(null)}
+          />
+          <div
+            className="discover-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="discover-modal-title"
+          >
+            <div className="discover-modal-header">
+              <span className="discover-cat">{detailHobby.category}</span>
+              <button
+                type="button"
+                className="discover-modal-close"
+                onClick={() => setDetailHobby(null)}
+                aria-label="Close"
+              >
+                <Close size={20} />
+              </button>
+            </div>
+            <h2 id="discover-modal-title" className="discover-modal-title">
+              {detailHobby.name}
+            </h2>
+            <p className="discover-modal-desc">{detailHobby.description}</p>
+
+            {(detailHobby.tags || []).length > 0 && (
+              <div className="discover-modal-tags">
+                {(detailHobby.tags || []).map((t) => (
+                  <span key={t} className="discover-tag-pill">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {detailHobby.do_it_now && (
+              <div className="discover-modal-extra">
+                <h3 className="discover-modal-subhead">Get started</h3>
+                {detailHobby.do_it_now.session_minutes != null && (
+                  <p className="discover-modal-meta">
+                    Suggested session: ~{detailHobby.do_it_now.session_minutes} min
+                  </p>
+                )}
+                {(detailHobby.do_it_now.quick_start_steps || []).length > 0 && (
+                  <ol className="discover-modal-steps">
+                    {detailHobby.do_it_now.quick_start_steps.map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
+                )}
+                {detailHobby.do_it_now.success_metric && (
+                  <p className="discover-modal-metric">{detailHobby.do_it_now.success_metric}</p>
+                )}
+              </div>
+            )}
+
+            <div className="discover-modal-actions">
+              <button
+                type="button"
+                className="btn-primary discover-modal-add"
+                disabled={!!detailHobby.selected || addPending}
+                onClick={handleAddFromModal}
+              >
+                {addPending ? 'Adding…' : detailHobby.selected ? 'In My Hobbies' : 'Add to My Hobbies'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

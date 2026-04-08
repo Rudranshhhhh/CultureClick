@@ -4,6 +4,39 @@ export function getAllDomainHobbies() {
   return hobbiesData?.hobbies || [];
 }
 
+/**
+ * Shape used by FocusSession: stable `id`, online/offline flags, environment.
+ * Accepts a domain JSON hobby (`id`) or an API hobby (`_id`).
+ */
+export function normalizeHobbyForFocus(raw) {
+  if (!raw) return null;
+  if (raw.id && !raw._id) {
+    return {
+      id: raw.id,
+      name: raw.name || 'Hobby',
+      description: raw.description || '',
+      url: raw.url || '',
+      is_online: !!raw.is_online,
+      environment: raw.environment || 'either',
+      interest_type: Array.isArray(raw.interest_type) ? raw.interest_type : [],
+    };
+  }
+  const id = String(raw._id ?? '');
+  return {
+    id,
+    name: raw.name || 'Hobby',
+    description: raw.description || '',
+    url: raw.url || '',
+    is_online: !!raw.is_online,
+    environment: raw.environment || 'either',
+    interest_type: Array.isArray(raw.interest_type)
+      ? raw.interest_type
+      : raw.category
+        ? [raw.category]
+        : [],
+  };
+}
+
 export function buildDomainProfile({ categories = [], tags = [], indoor = 'either', timeMinutes = 30, notes = '', mode = [] }) {
   return {
     categories,

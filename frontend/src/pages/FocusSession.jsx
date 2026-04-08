@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getAllDomainHobbies } from '../utils/hobbyMatch';
+import { getHobbyById } from '../api';
+import { getAllDomainHobbies, normalizeHobbyForFocus } from '../utils/hobbyMatch';
 import { createDistractionTracker } from '../utils/focusSession';
 import AddMemoryModal from '../components/AddMemoryModal';
 import './FocusSession.css';
@@ -44,7 +45,49 @@ export default function FocusSession() {
   const navigate = useNavigate();
   const minutesFromQuery = useQueryMinutes(30);
 
-  const hobby = useMemo(() => getAllDomainHobbies().find((h) => h.id === hobbyId), [hobbyId]);
+  const domainMatch = useMemo(
+    () => (hobbyId ? getAllDomainHobbies().find((h) => h.id === hobbyId) : null),
+    [hobbyId]
+  );
+
+  const [apiRawHobby, setApiRawHobby] = useState(null);
+  /** False until we know domain miss won’t be resolved by API (or we matched domain). */
+  const [apiResolved, setApiResolved] = useState(false);
+
+  useEffect(() => {
+    if (!hobbyId) {
+      setApiRawHobby(null);
+      setApiResolved(false);
+      return;
+    }
+    if (domainMatch) {
+      setApiRawHobby(null);
+      setApiResolved(true);
+      return;
+    }
+    let cancelled = false;
+    setApiResolved(false);
+    setApiRawHobby(null);
+    getHobbyById(hobbyId)
+      .then((res) => {
+        if (!cancelled) setApiRawHobby(res.data?.hobby || null);
+      })
+      .catch(() => {
+        if (!cancelled) setApiRawHobby(null);
+      })
+      .finally(() => {
+        if (!cancelled) setApiResolved(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hobbyId, domainMatch]);
+
+  const hobby = useMemo(() => {
+    if (domainMatch) return normalizeHobbyForFocus(domainMatch);
+    if (apiRawHobby) return normalizeHobbyForFocus(apiRawHobby);
+    return null;
+  }, [domainMatch, apiRawHobby]);
   const [durationMin, setDurationMin] = useState(minutesFromQuery);
   const [running, setRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(minutesFromQuery * 60);
@@ -159,13 +202,43 @@ export default function FocusSession() {
     setRunning(true);
   };
 
+  if (!hobbyId) {
+    return (
+      <div className="page focus-page">
+        <div className="focus-card">
+          <h1>Session not found</h1>
+          <p className="muted">No hobby was specified in the link.</p>
+          <button type="button" className="btn-primary" onClick={() => navigate('/my-hobbies')}>
+            Back to My Hobbies
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hobby && !apiResolved) {
+    return (
+      <div className="page focus-page">
+        <div className="focus-card">
+          <h1>Loading session…</h1>
+          <p className="muted">Fetching hobby details.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!hobby) {
     return (
       <div className="page focus-page">
         <div className="focus-card">
           <h1>Session not found</h1>
-          <p className="muted">That hobby doesn’t exist in the domain catalog.</p>
-          <button className="btn-primary" onClick={() => navigate('/onboarding')}>Back</button>
+          <p className="muted">
+            This hobby isn’t available. It may have been removed, or the link uses an id that doesn’t match your
+            library.
+          </p>
+          <button type="button" className="btn-primary" onClick={() => navigate('/my-hobbies')}>
+            Back to My Hobbies
+          </button>
         </div>
       </div>
     );

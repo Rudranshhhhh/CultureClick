@@ -11,6 +11,8 @@ export default function Stepper({
   onFinalStepCompleted,
   backButtonText = 'Previous',
   nextButtonText = 'Next',
+  /** When set, Next/Finish and step dots require the current / prior steps to be complete before advancing. */
+  isStepComplete,
   children,
 }) {
   const steps = useMemo(
@@ -37,6 +39,20 @@ export default function Stepper({
   const isFirst = activeStep === 1;
   const isLast = activeStep === maxStep;
 
+  const canNavigateToStep = useCallback(
+    (n) => {
+      if (!isStepComplete) return true;
+      if (n <= activeStep) return true;
+      for (let s = 1; s < n; s += 1) {
+        if (!isStepComplete(s)) return false;
+      }
+      return true;
+    },
+    [isStepComplete, activeStep]
+  );
+
+  const currentStepComplete = !isStepComplete || isStepComplete(activeStep);
+
   return (
     <div className="rb-stepper">
       <div className="rb-stepper-header">
@@ -44,13 +60,19 @@ export default function Stepper({
           {Array.from({ length: maxStep }).map((_, i) => {
             const n = i + 1;
             const state = n < activeStep ? 'done' : n === activeStep ? 'active' : 'todo';
+            const dotDisabled = n > activeStep && !canNavigateToStep(n);
             return (
               <button
                 key={n}
                 type="button"
                 className={`rb-stepper-dot ${state}`}
-                onClick={() => setStep(n)}
+                onClick={() => {
+                  if (dotDisabled) return;
+                  setStep(n);
+                }}
+                disabled={dotDisabled}
                 aria-label={`Go to step ${n}`}
+                aria-current={n === activeStep ? 'step' : undefined}
               >
                 {n}
               </button>
@@ -70,14 +92,18 @@ export default function Stepper({
           : null}
       </div>
 
-      <div className="rb-stepper-footer">
-        <button type="button" className="btn-ghost" onClick={() => setStep(activeStep - 1)} disabled={isFirst}>
-          {backButtonText}
-        </button>
+      <div className={`rb-stepper-footer ${isFirst ? 'rb-stepper-footer--first' : ''}`}>
+        {!isFirst && (
+          <button type="button" className="btn-ghost" onClick={() => setStep(activeStep - 1)}>
+            {backButtonText}
+          </button>
+        )}
         <button
           type="button"
           className="btn-primary"
+          disabled={!currentStepComplete}
           onClick={() => {
+            if (!currentStepComplete) return;
             if (isLast) {
               onFinalStepCompleted?.();
               return;

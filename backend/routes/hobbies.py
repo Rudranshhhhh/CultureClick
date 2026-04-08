@@ -126,6 +126,22 @@ def get_all_hobbies():
     return jsonify({"hobbies": out, "total": len(out)})
 
 
+@hobbies_bp.route("/api/hobbies/item/<hobby_id>", methods=["GET"])
+@jwt_required()
+def get_hobby_by_id(hobby_id):
+    """Return one hobby by Mongo _id (used when focus session uses DB-backed hobbies)."""
+    try:
+        oid = ObjectId(hobby_id)
+    except Exception:
+        return jsonify({"error": "Invalid hobby id"}), 400
+    hobby = db.hobbies.find_one({"_id": oid})
+    if not hobby:
+        return jsonify({"error": "Hobby not found"}), 404
+    item = _with_do_it_now(hobby)
+    item["_id"] = str(item["_id"])
+    return jsonify({"hobby": item})
+
+
 @hobbies_bp.route("/api/swipe", methods=["POST"])
 @jwt_required()
 def record_swipe():
