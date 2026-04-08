@@ -1,22 +1,22 @@
-<<<<<<< HEAD
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Compass, ChatBot, Catalog } from '@carbon/icons-react';
 import './Navbar.css';
 
 const NAV_ITEMS = [
-  { to: '/swipe', icon: '🃏', label: 'Discover' },
-  { to: '/buddy', icon: '🤖', label: 'Buddy' },
-  { to: '/board', icon: '📸', label: 'Board' },
+  { to: '/swipe', icon: <Compass size={20} />, label: 'Discover' },
+  { to: '/buddy', icon: <ChatBot size={20} />, label: 'Buddy' },
+  { to: '/board', icon: <Catalog size={20} />, label: 'Board' },
 ];
 
 export default function Navbar() {
   const location = useLocation();
 
-  // Hide on landing page
-  if (location.pathname === '/') return null;
+  // Hide on landing and auth pages
+  if (['/', '/login', '/register'].includes(location.pathname)) return null;
 
   return (
-    <nav className="navbar glass-heavy">
+    <nav className="navbar" style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)' }}>
       <div className="nav-inner">
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.to;
@@ -35,25 +35,6 @@ export default function Navbar() {
           );
         })}
       </div>
-=======
-import { NavLink } from "react-router-dom";
-
-export default function Navbar() {
-  return (
-    <nav className="bottom-nav">
-      <NavLink to="/swipe" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <span className="nav-icon">🧭</span>
-        <span className="nav-label">Explore</span>
-      </NavLink>
-      <NavLink to="/buddy" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <span className="nav-icon">🤖</span>
-        <span className="nav-label">Buddy</span>
-      </NavLink>
-      <NavLink to="/board" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-        <span className="nav-icon">📸</span>
-        <span className="nav-label">Board</span>
-      </NavLink>
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
     </nav>
   );
 }

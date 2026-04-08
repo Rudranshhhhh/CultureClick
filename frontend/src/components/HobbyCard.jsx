@@ -1,6 +1,6 @@
-<<<<<<< HEAD
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { CheckmarkOutline, CloseOutline, StarFilled, Home, Sun, Activity } from '@carbon/icons-react';
 import './HobbyCard.css';
 
 const SWIPE_THRESHOLD = 100;
@@ -78,68 +78,21 @@ export default function HobbyCard({ hobby, index, isTop, onSwipe }) {
       {isTop && (
         <>
           <motion.div className="swipe-overlay like-overlay" style={{ opacity: likeOpacity }}>
-            <span>✓</span>
+            <CheckmarkOutline size={120} style={{ color: 'var(--success)' }} />
           </motion.div>
           <motion.div className="swipe-overlay skip-overlay" style={{ opacity: skipOpacity }}>
-            <span>✗</span>
+            <CloseOutline size={120} style={{ color: 'var(--danger)' }} />
           </motion.div>
           <motion.div className="swipe-overlay super-overlay" style={{ opacity: superOpacity }}>
-            <span>★</span>
-=======
-import { motion, useMotionValue, useTransform } from "framer-motion";
-
-export default function HobbyCard({ hobby, onSwipe, isTop, style }) {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotate = useTransform(x, [-300, 300], [-18, 18]);
-  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
-  const nopeOpacity = useTransform(x, [-100, 0], [1, 0]);
-  const superOpacity = useTransform(y, [-100, 0], [1, 0]);
-
-  const handleDragEnd = (_, info) => {
-    const xOff = info.offset.x;
-    const yOff = info.offset.y;
-    if (xOff > 100) {
-      onSwipe("like");
-    } else if (xOff < -100) {
-      onSwipe("skip");
-    } else if (yOff < -100) {
-      onSwipe("superlike");
-    }
-  };
-
-  if (!hobby) return null;
-
-  return (
-    <motion.div
-      className="hobby-card"
-      style={{ ...style, x: isTop ? x : 0, y: isTop ? y : 0, rotate: isTop ? rotate : 0 }}
-      drag={isTop}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-      dragElastic={0.9}
-      onDragEnd={handleDragEnd}
-      whileTap={isTop ? { cursor: "grabbing" } : {}}
-      exit={{ x: 500, opacity: 0, transition: { duration: 0.3 } }}
-    >
-      {/* Swipe overlays - only on top card */}
-      {isTop && (
-        <>
-          <motion.div className="swipe-overlay like" style={{ opacity: likeOpacity }}>
-            LIKE ✓
-          </motion.div>
-          <motion.div className="swipe-overlay nope" style={{ opacity: nopeOpacity }}>
-            NOPE ✗
-          </motion.div>
-          <motion.div className="swipe-overlay super" style={{ opacity: superOpacity }}>
-            SUPER ★
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
+            <StarFilled size={120} style={{ color: 'var(--warning)' }} />
           </motion.div>
         </>
       )}
 
-<<<<<<< HEAD
-      {/* Card content */}
-      <div className="card-emoji">{hobby.emoji || '🎯'}</div>
+      {/* Card content - Emoji replaced by generic geometric shape/icon */}
+      <div className="card-visual">
+        <Activity size={64} style={{ color: 'var(--cat-color, var(--text-secondary))' }} />
+      </div>
 
       <div className="card-body">
         <span className={`category-badge ${getCategoryClass(hobby.category)}`}>
@@ -156,26 +109,12 @@ export default function HobbyCard({ hobby, onSwipe, isTop, style }) {
 
         <div className="card-meta">
           {hobby.indoor !== undefined && (
-            <span className="meta-pill">
-              {hobby.indoor ? '🏠 Indoor' : '🌤️ Outdoor'}
+            <span className="meta-pill" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {hobby.indoor ? <Home size={16} /> : <Sun size={16} />}
+              {hobby.indoor ? 'Indoor' : 'Outdoor'}
             </span>
           )}
         </div>
-=======
-      <div className={`card-header ${hobby.category}`}>
-        <span className={`category-badge ${hobby.category}`}>{hobby.category}</span>
-        <span className="card-emoji">{hobby.emoji}</span>
-      </div>
-
-      <div className="card-body">
-        <h2 className="card-name">{hobby.name}</h2>
-        <p className="card-desc">{hobby.description}</p>
-        <div className="card-tags">
-          {hobby.tags?.map((tag) => (
-            <span key={tag} className="tag">#{tag}</span>
-          ))}
-        </div>
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
       </div>
     </motion.div>
   );

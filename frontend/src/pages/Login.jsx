@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Activity, UserAvatar } from "@carbon/icons-react";
 
 export default function Login() {
   const { login, guestLogin } = useAuth();
@@ -38,9 +39,9 @@ export default function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="logo-icon">✨</div>
+          <Activity size={32} className="logo-icon" style={{ fill: 'var(--accent-primary)', marginBottom: '16px' }} />
           <h1>CultureClick</h1>
-          <p>Discover hobbies you'll love</p>
+          <p>System Authentication</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}
@@ -63,9 +64,8 @@ export default function Login() {
 
         <div className="auth-divider">or</div>
 
-        <button className="btn-primary" onClick={handleGuest} disabled={loading}
-          style={{ background: "var(--gradient-buddy)" }}>
-          ⚡ Try as Guest
+        <button className="btn-secondary" onClick={handleGuest} disabled={loading} style={{ justifyContent: 'center' }}>
+          Guest Access <UserAvatar size={16} />
         </button>
 
         <div className="auth-footer">

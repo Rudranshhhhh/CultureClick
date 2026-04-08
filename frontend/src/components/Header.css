@@ -1,0 +1,168 @@
+/* ── Site Header (Carbon Style) ─────────────────────────────────── */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 48px; /* Carbon UI Header default height */
+}
+
+/* ── Logo ──────────────────────────────────────────────── */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo-icon {
+  fill: var(--text-primary);
+}
+.logo-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Desktop Nav ───────────────────────────────────────── */
+.header-nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+.header-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 100%;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.header-link:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.header-link.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-primary);
+  background: var(--bg-secondary);
+}
+
+/* ── Auth Buttons ──────────────────────────────────────── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ── User Info ─────────────────────────────────────────── */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.header-user-name {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+/* ── Hamburger ─────────────────────────────────────────── */
+.header-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+}
+.header-hamburger svg {
+  fill: currentColor;
+}
+.header-hamburger:hover {
+  background: var(--bg-secondary);
+}
+
+/* ── Mobile Menu ───────────────────────────────────────── */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  padding: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+.mobile-link {
+  padding: 16px 24px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.2s;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.mobile-link:hover,
+.mobile-link.highlight {
+  background: var(--bg-secondary);
+}
+.mobile-link.highlight {
+  color: var(--accent-primary);
+}
+.mobile-link.logout {
+  color: var(--danger);
+}
+.mobile-divider {
+  display: none;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-nav-desktop,
+  .header-actions {
+    display: none;
+  }
+  .header-hamburger {
+    display: flex;
+  }
+  .mobile-menu {
+    display: flex;
+  }
+}

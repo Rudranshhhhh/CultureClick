@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { getNextHobby, recordSwipe } from '../api';
 import HobbyCard from '../components/HobbyCard';
+import { Compass, CheckmarkOutline, FavoriteFilled, SkipForwardFilled, StarFilled } from '@carbon/icons-react';
 import './SwipePage.css';
 
 export default function SwipePage() {
@@ -82,7 +83,7 @@ export default function SwipePage() {
       {/* Progress indicator */}
       <div className="swipe-header">
         <div className="progress-info">
-          <span className="progress-emoji">🧭</span>
+          <Compass size={20} className="progress-emoji" style={{ fill: 'var(--accent-primary)' }} />
           <span className="progress-text">
             {progress.discovered} / {progress.total} hobbies discovered
           </span>
@@ -101,13 +102,7 @@ export default function SwipePage() {
       <div className="card-stack-area">
         {loading && !cards.length && (
           <div className="swipe-loading">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="loading-spinner"
-            >
-              🎯
-            </motion.div>
+            <div className="spinner"></div>
             <p>Finding your next hobby...</p>
           </div>
         )}
@@ -119,8 +114,8 @@ export default function SwipePage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', stiffness: 200 }}
           >
-            <span className="done-emoji">🎉</span>
-            <h2>You've explored all hobbies!</h2>
+            <CheckmarkOutline size={48} className="done-emoji" style={{ fill: 'var(--success)', marginBottom: '16px' }} />
+            <h2>Catalog exhausted.</h2>
             <p>Check out your Buddy for personalized suggestions, or visit your Board to save memories.</p>
           </motion.div>
         )}
@@ -149,9 +144,9 @@ export default function SwipePage() {
               exit={{ opacity: 0, y: -10, scale: 0.9 }}
               transition={{ duration: 0.3 }}
             >
-              {lastAction.action === 'like' && '💚 Liked'}
-              {lastAction.action === 'skip' && '⏭️ Skipped'}
-              {lastAction.action === 'superlike' && '⭐ Superliked'}
+              {lastAction.action === 'like' && <><FavoriteFilled size={20} style={{fill: 'var(--success)'}}/> Liked</>}
+              {lastAction.action === 'skip' && <><SkipForwardFilled size={20} style={{fill: 'var(--danger)'}}/> Skipped</>}
+              {lastAction.action === 'superlike' && <><StarFilled size={20} style={{fill: 'var(--warning)'}}/> Superliked</>}
               <span className="action-hobby-name">{lastAction.hobbyName}</span>
             </motion.div>
           )}

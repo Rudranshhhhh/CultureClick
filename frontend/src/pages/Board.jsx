@@ -1,23 +1,15 @@
-<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { getMemories, deleteMemory } from '../api';
 import PolaroidCard from '../components/PolaroidCard';
 import AddMemoryModal from '../components/AddMemoryModal';
+import { Catalog, ImageSearch, Add, TrashCan, Activity, StarFilled, Star } from '@carbon/icons-react';
 import './Board.css';
-=======
-import { useState, useEffect } from "react";
-import PolaroidCard from "../components/PolaroidCard";
-import CreateMemory from "../components/CreateMemory";
-import { useAuth } from "../context/AuthContext";
-import api from "../api/client";
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
 
 export default function Board() {
   const { user } = useAuth();
   const [memories, setMemories] = useState([]);
-<<<<<<< HEAD
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [expanded, setExpanded] = useState(null);
@@ -56,7 +48,9 @@ export default function Board() {
     <div className="board-page">
       <div className="board-header">
         <div>
-          <h1 className="board-title">📸 Memory Board</h1>
+          <h1 className="board-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Catalog size={32} /> Memory Resource
+          </h1>
           <p className="board-subtitle">
             {memories.length > 0
               ? `${memories.length} memor${memories.length === 1 ? 'y' : 'ies'} saved`
@@ -64,20 +58,14 @@ export default function Board() {
           </p>
         </div>
         <button className="btn-primary btn-add-memory" onClick={() => setShowModal(true)}>
-          + Add Memory
+          <Add size={16} /> Add Record
         </button>
       </div>
 
       {loading ? (
         <div className="board-loading">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            style={{ fontSize: 40, display: 'inline-block' }}
-          >
-            📸
-          </motion.div>
-          <p>Loading memories...</p>
+          <div className="spinner"></div>
+          <p>Loading catalog...</p>
         </div>
       ) : memories.length === 0 ? (
         <motion.div
@@ -86,17 +74,17 @@ export default function Board() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="empty-illustration">
-            <span className="empty-icon">📷</span>
+            <ImageSearch size={48} className="empty-icon" style={{ fill: 'var(--text-muted)' }} />
             <div className="empty-polaroids">
               <div className="mini-polaroid p1" />
               <div className="mini-polaroid p2" />
               <div className="mini-polaroid p3" />
             </div>
           </div>
-          <h2>No memories yet</h2>
-          <p>Try a hobby from your liked list and pin it here as a memory!</p>
+          <h2>No records established</h2>
+          <p>Initiate a hobby and catalog the experience.</p>
           <button className="btn-primary" onClick={() => setShowModal(true)}>
-            📌 Pin Your First Memory
+            <Add size={16} /> Init Record
           </button>
         </motion.div>
       ) : (
@@ -108,55 +96,10 @@ export default function Board() {
               index={idx}
               onClick={() => setExpanded(memory)}
             />
-=======
-  const [showCreate, setShowCreate] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const fetchMemories = async () => {
-    if (!user) return;
-    try {
-      const res = await api.get(`/api/memories?user_id=${user.id}`);
-      setMemories(res.data.memories || []);
-    } catch (err) { console.error(err); }
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchMemories(); }, [user]);
-
-  const handleCreated = (memory) => {
-    fetchMemories();
-  };
-
-  if (loading) {
-    return <div className="page"><div className="empty-state"><div className="spinner" /></div></div>;
-  }
-
-  return (
-    <div className="page">
-      <div className="page-header">
-        <h1>Memory Board</h1>
-        <span className="progress-badge">{memories.length} memories</span>
-      </div>
-
-      {memories.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-icon">📷</span>
-          <h2>No Memories Yet</h2>
-          <p>Try a hobby you liked, then pin it here as a polaroid memory!</p>
-          <button className="btn-primary" style={{ maxWidth: 200, marginTop: 8 }} onClick={() => setShowCreate(true)}>
-            Create First Memory
-          </button>
-        </div>
-      ) : (
-        <div className="board-grid">
-          {memories.map((m) => (
-            <PolaroidCard key={m._id} memory={m} onClick={() => {}} />
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
           ))}
         </div>
       )}
 
-<<<<<<< HEAD
       {/* Expanded Polaroid Modal */}
       <AnimatePresence>
         {expanded && (
@@ -176,15 +119,15 @@ export default function Board() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="expanded-photo">
-                <span className="expanded-emoji">{expanded.hobby_emoji || '🎯'}</span>
+                <Activity size={64} style={{ fill: 'var(--text-secondary)', margin: 'auto' }} />
               </div>
               <div className="expanded-body">
                 <h3>{expanded.hobby_name}</h3>
                 <span className={`category-badge cat-${expanded.hobby_category}`}>
                   {expanded.hobby_category}
                 </span>
-                <div className="expanded-stars">
-                  {'★'.repeat(expanded.rating)}{'☆'.repeat(5 - expanded.rating)}
+                <div className="expanded-stars" style={{ display: 'flex', gap: '4px', fill: 'var(--warning)', marginTop: '8px', marginBottom: '8px' }}>
+                  {[...Array(5)].map((_, i) => i < expanded.rating ? <StarFilled size={20} key={i} /> : <Star size={20} key={i} />)}
                 </div>
                 {expanded.note && (
                   <p className="expanded-note">{expanded.note}</p>
@@ -197,8 +140,9 @@ export default function Board() {
                 <button
                   className="btn-delete"
                   onClick={() => handleDelete(expanded._id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}
                 >
-                  🗑️ Delete Memory
+                  <TrashCan size={16} /> Delete Record
                 </button>
               </div>
             </motion.div>
@@ -215,13 +159,6 @@ export default function Board() {
           />
         )}
       </AnimatePresence>
-=======
-      <button className="fab-btn" onClick={() => setShowCreate(true)}>+</button>
-
-      {showCreate && (
-        <CreateMemory onClose={() => setShowCreate(false)} onCreated={handleCreated} />
-      )}
->>>>>>> 1a62fd007f6a46adb16d418a975995921939f395
     </div>
   );
 }
