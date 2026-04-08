@@ -5,16 +5,17 @@ from flask import Blueprint, request, jsonify
 from bson import ObjectId
 
 from config import db
+from schemas import SwipeSchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 hobbies_bp = Blueprint("hobbies", __name__)
 
 
 @hobbies_bp.route("/api/hobbies/next", methods=["GET"])
+@jwt_required()
 def get_next_hobby():
     """Return the next un-swiped hobby, weighted by the user's taste model."""
-    user_id = request.args.get("user_id")
-    if not user_id:
-        return jsonify({"error": "user_id is required"}), 400
+    user_id = get_jwt_identity()
 
     try:
         user = db.users.find_one({"_id": ObjectId(user_id)})
@@ -67,18 +68,13 @@ def get_next_hobby():
 
 
 @hobbies_bp.route("/api/swipe", methods=["POST"])
+@jwt_required()
 def record_swipe():
     """Record a like / skip / superlike and update taste model."""
-    data = request.json or {}
-    user_id = data.get("user_id")
-    hobby_id = data.get("hobby_id")
-    action = data.get("action")  # "like" | "skip" | "superlike"
-
-    if not all([user_id, hobby_id, action]):
-        return jsonify({"error": "user_id, hobby_id, and action are required"}), 400
-
-    if action not in ("like", "skip", "superlike"):
-        return jsonify({"error": "action must be like, skip, or superlike"}), 400
+    data = SwipeSchema().load(request.json or {})
+    user_id = get_jwt_identity()
+    hobby_id = data["hobby_id"]
+    action = data["action"]  # "like" | "skip" | "superlike"
 
     # Save the swipe
     db.swipes.insert_one({

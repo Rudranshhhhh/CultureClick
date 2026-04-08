@@ -39,7 +39,7 @@ FALLBACK_SUGGESTIONS = [
 ]
 
 
-def get_buddy_suggestion(user_prefs, weather, city, user_message=""):
+def get_buddy_suggestion(user_prefs, weather, city, user_message="", user_id=None):
     """
     Call Groq (LLaMA) to generate a personalised activity suggestion.
     Falls back to curated suggestions if no API key is configured.
@@ -50,6 +50,7 @@ def get_buddy_suggestion(user_prefs, weather, city, user_message=""):
 
     try:
         from groq import Groq
+        from config import db
 
         client = Groq(api_key=GROQ_API_KEY)
 
@@ -72,18 +73,15 @@ def get_buddy_suggestion(user_prefs, weather, city, user_message=""):
 
         day_of_week = datetime.now().strftime("%A")
 
-        constraint = ""
-        if user_message:
-            constraint = f"\nUser's additional constraint: \"{user_message}\""
-
-        prompt = f"""You are Buddy, a warm and enthusiastic hobby advisor for the CultureClick app. 
+        system_prompt = f"""You are Buddy, a friendly and enthusiastic hobby advisor for the CultureClick app.
+Always respond with valid JSON only.
 Based on this user's taste profile, suggest ONE specific, concrete activity they should try.
 
 User's liked hobbies: {liked_str}
-Top categories (by preference): {top_cats_str}
+Top categories: {top_cats_str}
 City: {city}
 Weather: {weather_str}
-Day: {day_of_week}{constraint}
+Day: {day_of_week}
 
 Return ONLY valid JSON with these fields:
 {{
@@ -93,21 +91,41 @@ Return ONLY valid JSON with these fields:
   "tip": "One practical tip to make it great"
 }}"""
 
+        messages = [
+            {"role": "system", "content": system_prompt}
+        ]
+
+        if user_id:
+            if user_message:
+                db.chat_history.insert_one({"user_id": user_id, "role": "user", "content": user_message, "timestamp": datetime.utcnow()})
+            
+            history = list(db.chat_history.find({"user_id": user_id}).sort("timestamp", -1).limit(6))
+            history.reverse()
+            has_user_msg = False
+            for msg in history:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+                if msg["role"] == "user":
+                    has_user_msg = True
+            
+            if not has_user_msg:
+                messages.append({"role": "user", "content": "What should I do today?"})
+        else:
+            messages.append({"role": "user", "content": user_message or "What should I do today?"})
+
+
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are Buddy, a friendly and enthusiastic hobby advisor. Always respond with valid JSON only.",
-                },
-                {"role": "user", "content": prompt},
-            ],
+            messages=messages,
             response_format={"type": "json_object"},
             temperature=0.85,
             max_tokens=400,
         )
 
-        result = json.loads(response.choices[0].message.content)
+        result_content = response.choices[0].message.content
+        result = json.loads(result_content)
+
+        if user_id:
+            db.chat_history.insert_one({"user_id": user_id, "role": "assistant", "content": result_content, "timestamp": datetime.utcnow()})
 
         # Validate required fields
         for key in ("activity", "reason", "timing", "tip"):
@@ -117,5 +135,66 @@ Return ONLY valid JSON with these fields:
         return result
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"[Buddy] Groq API error: {e}")
         return random.choice(FALLBACK_SUGGESTIONS)
+
+def get_buddy_chat_reply(user_id, user_message, city):
+    """
+    Call Groq (LLaMA) to generate a conversational reply for Buddy AI.
+    Falls back to a simple string if API key is not configured.
+    """
+    if not GROQ_API_KEY:
+        return "I'm currently offline, but I'm here to help you find fun hobbies!"
+
+    try:
+        from groq import Groq
+        from config import db
+
+        client = Groq(api_key=GROQ_API_KEY)
+
+        # Build context
+        day_of_week = datetime.now().strftime("%A")
+
+        system_prompt = f"""You are Buddy, a friendly and enthusiastic hobby and activity advisor for the CultureClick app.
+You are chatting with a user in {city} on {day_of_week}.
+Keep your answers brief, engaging, and conversational.
+Do NOT use JSON for this regular conversational endpoint, return plain text."""
+
+        messages = [
+            {"role": "system", "content": system_prompt}
+        ]
+
+        if user_id and user_message:
+            db.chat_history.insert_one({"user_id": user_id, "role": "user", "content": user_message, "timestamp": datetime.utcnow()})
+            
+            history = list(db.chat_history.find({"user_id": user_id}).sort("timestamp", -1).limit(6))
+            history.reverse()
+            # In get_buddy_suggestion, it occasionally inserts a json string into content
+            # That's fine, the model can interpret json content from assistant
+            for msg in history:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+        else:
+            if user_message:
+                messages.append({"role": "user", "content": user_message})
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=300,
+        )
+
+        result_content = response.choices[0].message.content
+
+        if user_id:
+            db.chat_history.insert_one({"user_id": user_id, "role": "assistant", "content": result_content, "timestamp": datetime.utcnow()})
+
+        return result_content
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"[Buddy Chat] Groq API error: {e}")
+        return "Sorry, I'm having trouble thinking right now."

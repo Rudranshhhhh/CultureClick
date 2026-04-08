@@ -4,16 +4,17 @@ from flask import Blueprint, request, jsonify
 from bson import ObjectId
 
 from config import db
+from schemas import MemorySchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 memories_bp = Blueprint("memories", __name__)
 
 
 @memories_bp.route("/api/memories", methods=["GET"])
+@jwt_required()
 def get_memories():
     """Fetch all memories for a user."""
-    user_id = request.args.get("user_id")
-    if not user_id:
-        return jsonify({"error": "user_id is required"}), 400
+    user_id = get_jwt_identity()
 
     memories = list(
         db.memories.find({"user_id": user_id}).sort("created_at", -1)
@@ -36,17 +37,15 @@ def get_memories():
 
 
 @memories_bp.route("/api/memories", methods=["POST"])
+@jwt_required()
 def create_memory():
     """Create a new polaroid memory."""
-    data = request.json or {}
-    user_id = data.get("user_id")
-    hobby_id = data.get("hobby_id")
-    note = data.get("note", "")
-    rating = data.get("rating", 5)
-    photo_url = data.get("photo_url", "")  # base64 string or URL
-
-    if not user_id or not hobby_id:
-        return jsonify({"error": "user_id and hobby_id are required"}), 400
+    data = MemorySchema().load(request.json or {})
+    user_id = get_jwt_identity()
+    hobby_id = data["hobby_id"]
+    note = data["note"]
+    rating = data["rating"]
+    photo_url = data["photo_url"]
 
     memory = {
         "user_id": user_id,
@@ -63,10 +62,14 @@ def create_memory():
 
 
 @memories_bp.route("/api/memories/<memory_id>", methods=["DELETE"])
+@jwt_required()
 def delete_memory(memory_id):
     """Delete a memory."""
+    user_id = get_jwt_identity()
     try:
-        db.memories.delete_one({"_id": ObjectId(memory_id)})
+        result = db.memories.delete_one({"_id": ObjectId(memory_id), "user_id": user_id})
+        if result.deleted_count == 0:
+            return jsonify({"error": "Memory not found or unauthorized"}), 404
     except Exception:
         return jsonify({"error": "Invalid memory_id"}), 400
 

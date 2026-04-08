@@ -1,9 +1,21 @@
-from flask import Flask
+import traceback
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from marshmallow import ValidationError
 from config import JWT_SECRET_KEY
 
 app = Flask(__name__)
+
+@app.errorhandler(ValidationError)
+def handle_validation_error(err):
+    return jsonify({"error": "Validation failed", "messages": err.messages}), 400
+
+@app.errorhandler(Exception)
+def handle_exception(err):
+    app.logger.error(f"Unhandled Exception: {err}")
+    app.logger.error(traceback.format_exc())
+    return jsonify({"error": "Internal server error"}), 500
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours
 

@@ -5,19 +5,17 @@ from uuid import uuid4
 import bcrypt
 
 from config import db
+from schemas import RegisterSchema, LoginSchema, GuestLoginSchema
 
 auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/api/auth/register", methods=["POST"])
 def register():
-    data = request.json
-    email = data.get("email", "").strip().lower()
-    password = data.get("password", "")
-    city = data.get("city", "New York")
-
-    if not email or not password:
-        return jsonify({"error": "Email and password are required"}), 400
+    data = RegisterSchema().load(request.json or {})
+    email = data["email"].lower()
+    password = data["password"]
+    city = data["city"]
 
     if db.users.find_one({"email": email}):
         return jsonify({"error": "Email already registered"}), 409
@@ -47,9 +45,9 @@ def register():
 
 @auth_bp.route("/api/auth/login", methods=["POST"])
 def login():
-    data = request.json
-    email = data.get("email", "").strip().lower()
-    password = data.get("password", "")
+    data = LoginSchema().load(request.json or {})
+    email = data["email"].lower()
+    password = data["password"]
 
     user = db.users.find_one({"email": email})
     if not user:
@@ -73,7 +71,8 @@ def login():
 @auth_bp.route("/api/auth/guest", methods=["POST"])
 def guest_login():
     """Create an anonymous guest user for quick demo access."""
-    city = request.json.get("city", "New York") if request.json else "New York"
+    data = GuestLoginSchema().load(request.json or {})
+    city = data["city"]
     user = {
         "email": f"guest_{uuid4().hex[:8]}@demo.com",
         "password_hash": b"",

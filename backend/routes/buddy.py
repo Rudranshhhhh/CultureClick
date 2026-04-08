@@ -2,21 +2,20 @@ from flask import Blueprint, request, jsonify
 from bson import ObjectId
 
 from config import db
-from services.buddy_service import get_buddy_suggestion
+from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply
 from services.weather_service import get_weather
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 buddy_bp = Blueprint("buddy", __name__)
 
 
 @buddy_bp.route("/api/buddy/suggest", methods=["POST"])
+@jwt_required()
 def suggest():
     """Get a personalised activity suggestion from Buddy AI."""
     data = request.json or {}
-    user_id = data.get("user_id")
+    user_id = get_jwt_identity()
     message = data.get("message", "")
-
-    if not user_id:
-        return jsonify({"error": "user_id is required"}), 400
 
     user = db.users.find_one({"_id": ObjectId(user_id)})
     if not user:
@@ -45,6 +44,29 @@ def suggest():
         "skipped_categories": user.get("skipped_categories", {}),
     }
 
-    suggestion = get_buddy_suggestion(user_prefs, weather, city, message)
+    suggestion = get_buddy_suggestion(user_prefs, weather, city, message, user_id=user_id)
 
     return jsonify({"suggestion": suggestion, "weather": weather})
+
+@buddy_bp.route("/api/buddy/history", methods=["GET"])
+@jwt_required()
+def get_history():
+    """Return the conversational history."""
+    user_id = get_jwt_identity()
+    history = list(db.chat_history.find({"user_id": user_id}).sort("timestamp", 1))
+    for msg in history:
+        msg["_id"] = str(msg["_id"])
+    return jsonify({"history": history})
+
+@buddy_bp.route("/api/buddy/chat", methods=["POST"])
+@jwt_required()
+def chat():
+    """Send a conversational message to Buddy."""
+    user_id = get_jwt_identity()
+    message = (request.json or {}).get("message", "")
+    
+    user = db.users.find_one({"_id": ObjectId(user_id)})
+    city = user.get("city", "New York") if user else "New York"
+    
+    reply = get_buddy_chat_reply(user_id=user_id, user_message=message, city=city)
+    return jsonify({"reply": reply})
