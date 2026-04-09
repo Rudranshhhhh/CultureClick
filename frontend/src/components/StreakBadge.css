@@ -1,4 +1,18 @@
 /* ── Streak Badge ─────────────────────────────────────────────── */
+.streak-badge-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  line-height: 1;
+  margin-right: 2px;
+}
+
+.streak-badge.streak-active .streak-badge-label {
+  color: var(--text-secondary);
+}
+
 .streak-badge {
   display: flex;
   align-items: center;
@@ -77,5 +91,11 @@
   }
   100% {
     filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.5));
+  }
+}
+
+@media (max-width: 380px) {
+  .streak-badge-label {
+    display: none;
   }
 }

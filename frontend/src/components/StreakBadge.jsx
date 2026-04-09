@@ -49,8 +49,11 @@ export default function StreakBadge() {
   return (
     <div
       className={`streak-badge ${streak > 0 ? 'streak-active' : ''} ${animate ? 'streak-pop' : ''}`}
-      title={`${streak} day streak`}
+      title={`${streak}-day streak`}
+      role="status"
+      aria-label={`Learning streak: ${streak} days`}
     >
+      <span className="streak-badge-label">Streak</span>
       <svg
         className="streak-flame-icon"
         viewBox="0 0 24 24"

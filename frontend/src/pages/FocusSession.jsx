@@ -218,8 +218,10 @@ export default function FocusSession() {
     const elapsedSeconds = Math.max(0, totalSeconds - finalSecondsLeft);
     const elapsedMinutes = elapsedSeconds / 60;
 
-    // Must exceed roughly 29.9 minutes to earn the point
-    if (elapsedMinutes >= 29.9 || (finalSecondsLeft <= 0 && durationMin >= 30)) {
+    const finishedTimer = finalSecondsLeft <= 0;
+    const meaningfulSession = elapsedMinutes >= 5;
+
+    if (finishedTimer || meaningfulSession) {
       try {
         const res = await streakCheckin(hobby?.name || 'your hobby');
         if (res.data?.congrats) {
@@ -227,7 +229,7 @@ export default function FocusSession() {
           window.dispatchEvent(new Event('streak-updated'));
         }
       } catch {
-        // Fall back gracefully
+        /* ignore */
       }
     }
     setShowMemory(true);

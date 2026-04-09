@@ -51,7 +51,8 @@ export default function StreakCongratsModal({ congrats, onClose }) {
 
   if (!congrats) return null;
 
-  const { title, body, hobby_name, streak } = congrats;
+  const { title, body, hobby_name, streak, tagline, streak_incremented: streakInc } = congrats;
+  const line = tagline || 'Continue learning everyday';
 
   const handleClose = () => {
     setVisible(false);
@@ -80,6 +81,12 @@ export default function StreakCongratsModal({ congrats, onClose }) {
         </div>
 
         <h2 className="streak-congrats-title">{title}</h2>
+        <p className="streak-congrats-tagline">{line}</p>
+        {streakInc === false && (
+          <p className="streak-congrats-extra-day">
+            You already logged today&apos;s streak — every extra task still builds mastery.
+          </p>
+        )}
         <p className="streak-congrats-body">{body}</p>
         {hobby_name && (
           <p className="streak-congrats-hobby">

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { getNextHobby, recordSwipe, getDoNowTracks, startDoNowTrack, checkinDoNowTrack, extendDoNowTrack, completeDoNowTrack } from '../api';
 import HobbyCard from '../components/HobbyCard';
+import StreakCongratsModal from '../components/StreakCongratsModal';
 import { Compass, CheckmarkOutline, FavoriteFilled, SkipForwardFilled, StarFilled } from '@carbon/icons-react';
 import './SwipePage.css';
 
@@ -19,6 +20,7 @@ export default function SwipePage() {
   const [selectedHobby, setSelectedHobby] = useState(null);
   const [targetDays, setTargetDays] = useState(7);
   const [doNowError, setDoNowError] = useState('');
+  const [streakCongrats, setStreakCongrats] = useState(null);
 
   const fetchCards = useCallback(async () => {
     if (!user?.id) return;
@@ -124,9 +126,14 @@ export default function SwipePage() {
 
   const handleCheckin = async (trackId) => {
     try {
-      await checkinDoNowTrack(trackId);
+      const res = await checkinDoNowTrack(trackId);
       await refreshTracks();
-    } catch { }
+      const c = res.data?.streak?.congrats;
+      if (c) {
+        setStreakCongrats(c);
+        window.dispatchEvent(new Event('streak-updated'));
+      }
+    } catch { /* ignore */ }
   };
 
   const handleExtend = async (trackId, extraDays = 7) => {
@@ -262,6 +269,13 @@ export default function SwipePage() {
           <span className="hint hint-super">↑ Superlike</span>
           <span className="hint hint-like">Like →</span>
         </div>
+      )}
+
+      {streakCongrats && (
+        <StreakCongratsModal
+          congrats={streakCongrats}
+          onClose={() => setStreakCongrats(null)}
+        />
       )}
 
       {showDoNowModal && selectedHobby && (
