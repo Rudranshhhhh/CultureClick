@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getHobbyById, getBuddyFocusSetup } from '../api';
+import { getHobbyById, getBuddyFocusSetup, streakCheckin } from '../api';
 import { getAllDomainHobbies, normalizeHobbyForFocus } from '../utils/hobbyMatch';
 import { createDistractionTracker } from '../utils/focusSession';
 import AddMemoryModal from '../components/AddMemoryModal';
+import StreakCongratsModal from '../components/StreakCongratsModal';
 import './FocusSession.css';
 
 const MOTIVATION = [
@@ -90,6 +91,7 @@ export default function FocusSession() {
   }, [domainMatch, apiRawHobby]);
   const [durationMin, setDurationMin] = useState(minutesFromQuery);
   const [running, setRunning] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(minutesFromQuery * 60);
   const [breaks, setBreaks] = useState(0);
   const [lastBreakMs, setLastBreakMs] = useState(null);
@@ -97,6 +99,7 @@ export default function FocusSession() {
   const [showMemory, setShowMemory] = useState(false);
   const [showFocusBroken, setShowFocusBroken] = useState(false);
   const [journal, setJournal] = useState('');
+  const [streakCongrats, setStreakCongrats] = useState(null);
   const [motivation] = useState(() => MOTIVATION[Math.floor(Math.random() * MOTIVATION.length)]);
   const [resourceUrl, setResourceUrl] = useState('');
   const [embedWanted, setEmbedWanted] = useState(true);
@@ -172,9 +175,8 @@ export default function FocusSession() {
       if (remaining <= 0) {
         clearInterval(timerRef.current);
         timerRef.current = null;
-        setRunning(false);
-        setEnded(true);
-        setShowMemory(true);
+        // Timer completed fully — award the streak
+        completeSession();
       }
     }, 500);
     return () => {
@@ -202,6 +204,7 @@ export default function FocusSession() {
 
   const startSession = async () => {
     setEnded(false);
+    setPaused(false);
     const total = durationMin * 60;
     setSecondsLeft(total);
     await requestFullscreen();
@@ -210,14 +213,48 @@ export default function FocusSession() {
     setRunning(true);
   };
 
+  /** Timer ran out — user completed the full session. Award streak. */
+  const completeSession = async () => {
+    setRunning(false);
+    setPaused(false);
+    setEnded(true);
+    try {
+      const res = await streakCheckin(hobby?.name || 'your hobby');
+      if (res.data?.congrats) {
+        setStreakCongrats(res.data.congrats);
+        window.dispatchEvent(new Event('streak-updated'));
+      }
+    } catch {
+      setShowMemory(true);
+    }
+  };
+
+  /** User manually quits early — NO streak awarded. */
   const endSession = () => {
     setRunning(false);
+    setPaused(false);
     setEnded(true);
     setShowMemory(true);
   };
 
+  const pauseSession = () => {
+    setRunning(false);
+    setPaused(true);
+  };
+
   const resumeSession = () => {
     endAtRef.current = Date.now() + secondsLeft * 1000;
+    setPaused(false);
+    setRunning(true);
+  };
+
+  const startOverSession = async () => {
+    setPaused(false);
+    setEnded(false);
+    const total = durationMin * 60;
+    setSecondsLeft(total);
+    startedAtRef.current = Date.now();
+    endAtRef.current = Date.now() + total * 1000;
     setRunning(true);
   };
 
@@ -366,7 +403,17 @@ export default function FocusSession() {
         </div>
 
         <div className="focus-actions">
-          {!running ? (
+          {running ? (
+            <>
+              <button className="btn-secondary" onClick={pauseSession}>Pause</button>
+              <button className="btn-primary" onClick={endSession}>End session</button>
+            </>
+          ) : paused ? (
+            <>
+              <button className="btn-primary" onClick={resumeSession}>▶ Resume</button>
+              <button className="btn-secondary" onClick={startOverSession}>↺ Start Over</button>
+            </>
+          ) : (
             <>
               <button className="btn-primary" onClick={startSession}>
                 {ended ? 'Start again' : 'Start focused session'}
@@ -376,11 +423,6 @@ export default function FocusSession() {
                   Open hobby site
                 </a>
               )}
-            </>
-          ) : (
-            <>
-              <button className="btn-secondary" onClick={() => setRunning(false)}>Pause</button>
-              <button className="btn-primary" onClick={endSession}>End session</button>
             </>
           )}
         </div>
@@ -469,6 +511,16 @@ export default function FocusSession() {
             </div>
           </div>
         </div>
+      )}
+
+      {streakCongrats && (
+        <StreakCongratsModal
+          congrats={streakCongrats}
+          onClose={() => {
+            setStreakCongrats(null);
+            setShowMemory(true);
+          }}
+        />
       )}
 
       {showMemory && (

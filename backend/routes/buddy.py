@@ -2,10 +2,9 @@ from flask import Blueprint, request, jsonify
 from bson import ObjectId
 
 from config import db
-from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context
+from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context, get_buddy_focus_setup
 from services.weather_service import get_weather
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from services.buddy_service import get_buddy_suggestion, get_buddy_chat_reply, build_user_context, get_buddy_focus_setup
 
 buddy_bp = Blueprint("buddy", __name__)
 

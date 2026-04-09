@@ -109,4 +109,11 @@ export const createMemory = (userId, hobbyId, note, rating, photoUrl = '', extra
 export const deleteMemory = (memoryId) =>
   api.delete(`/api/memories/${memoryId}`);
 
+// ── Streak ──────────────────────────────────────────────────
+export const getStreakStatus = () =>
+  api.get('/api/streak/status');
+
+export const streakCheckin = (hobbyName) =>
+  api.post('/api/streak/checkin', { hobby_name: hobbyName });
+
 export default api;

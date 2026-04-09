@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Compass, Chat, Catalog, Menu, Close, UserAvatar } from '@carbon/icons-react';
+import StreakBadge from './StreakBadge';
 import './Header.css';
 
 export default function Header() {
@@ -69,18 +70,21 @@ export default function Header() {
         {/* Auth Buttons */}
         <div className={`header-actions ${user ? 'header-actions--user' : ''}`}>
           {user ? (
-            <button
-              type="button"
-              className="header-account-trigger"
-              onClick={() => setAccountOpen(true)}
-              aria-expanded={accountOpen}
-              aria-haspopup="dialog"
-            >
-              <span className="header-user-avatar" aria-hidden>
-                {user.email?.charAt(0).toUpperCase()}
-              </span>
-              <span className="header-account-label">Account</span>
-            </button>
+            <>
+              <StreakBadge />
+              <button
+                type="button"
+                className="header-account-trigger"
+                onClick={() => setAccountOpen(true)}
+                aria-expanded={accountOpen}
+                aria-haspopup="dialog"
+              >
+                <span className="header-user-avatar" aria-hidden>
+                  {user.email?.charAt(0).toUpperCase()}
+                </span>
+                <span className="header-account-label">Account</span>
+              </button>
+            </>
           ) : (
             <>
               <Link to="/login" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '14px' }}>Log In</Link>

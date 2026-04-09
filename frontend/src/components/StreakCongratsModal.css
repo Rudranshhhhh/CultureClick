@@ -1,0 +1,151 @@
+/* ── Streak Congrats Modal ────────────────────────────────────── */
+.streak-congrats-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: background 0.3s ease;
+  overflow: hidden;
+}
+
+.streak-congrats-overlay.visible {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.streak-congrats-card {
+  position: relative;
+  z-index: 10;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  max-width: 400px;
+  width: 100%;
+  padding: 40px 32px 32px;
+  text-align: center;
+  transform: scale(0.7) translateY(30px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.streak-congrats-card.visible {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ── Flame wrapper ─────────────────────────────────────────── */
+.streak-congrats-flame-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.streak-congrats-flame-wrap svg {
+  filter: drop-shadow(0 0 20px rgba(255, 100, 0, 0.6));
+  animation: congrats-flame-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes congrats-flame-glow {
+  from {
+    filter: drop-shadow(0 0 12px rgba(255, 100, 0, 0.5));
+  }
+  to {
+    filter: drop-shadow(0 0 28px rgba(255, 60, 0, 0.8));
+  }
+}
+
+.streak-congrats-streak-num {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #ff6b35, #ff4500);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary);
+}
+
+/* ── Text ─────────────────────────────────────────────────── */
+.streak-congrats-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.streak-congrats-body {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.streak-congrats-hobby {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+.streak-congrats-hobby strong {
+  color: var(--accent-secondary);
+}
+
+.streak-congrats-streak-label {
+  display: inline-block;
+  padding: 6px 16px;
+  background: rgba(255, 140, 0, 0.12);
+  border: 1px solid rgba(255, 140, 0, 0.25);
+  color: #ffa726;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+  border-radius: 2px;
+}
+
+.streak-congrats-cta {
+  width: 100%;
+  justify-content: center;
+  padding-left: 16px;
+}
+
+/* ── Confetti ──────────────────────────────────────────────── */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
