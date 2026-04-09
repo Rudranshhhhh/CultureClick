@@ -176,7 +176,7 @@ export default function FocusSession() {
         clearInterval(timerRef.current);
         timerRef.current = null;
         // Timer completed fully — award the streak
-        completeSession();
+        completeSession(remaining);
       }
     }, 500);
     return () => {
@@ -213,28 +213,40 @@ export default function FocusSession() {
     setRunning(true);
   };
 
-  /** Timer ran out — user completed the full session. Award streak. */
-  const completeSession = async () => {
+  const attemptAwardStreak = async (finalSecondsLeft) => {
+    const totalSeconds = durationMin * 60;
+    const elapsedSeconds = Math.max(0, totalSeconds - finalSecondsLeft);
+    const elapsedMinutes = elapsedSeconds / 60;
+
+    // Must exceed roughly 29.9 minutes to earn the point
+    if (elapsedMinutes >= 29.9 || (finalSecondsLeft <= 0 && durationMin >= 30)) {
+      try {
+        const res = await streakCheckin(hobby?.name || 'your hobby');
+        if (res.data?.congrats) {
+          setStreakCongrats(res.data.congrats);
+          window.dispatchEvent(new Event('streak-updated'));
+        }
+      } catch {
+        // Fall back gracefully
+      }
+    }
+    setShowMemory(true);
+  };
+
+  /** Timer ran out — evaluate streak. */
+  const completeSession = (remaining) => {
     setRunning(false);
     setPaused(false);
     setEnded(true);
-    try {
-      const res = await streakCheckin(hobby?.name || 'your hobby');
-      if (res.data?.congrats) {
-        setStreakCongrats(res.data.congrats);
-        window.dispatchEvent(new Event('streak-updated'));
-      }
-    } catch {
-      setShowMemory(true);
-    }
+    attemptAwardStreak(remaining);
   };
 
-  /** User manually quits early — NO streak awarded. */
+  /** User manually quits — evaluate streak based on time spent. */
   const endSession = () => {
     setRunning(false);
     setPaused(false);
     setEnded(true);
-    setShowMemory(true);
+    attemptAwardStreak(secondsLeft);
   };
 
   const pauseSession = () => {

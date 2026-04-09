@@ -92,3 +92,105 @@
   border-color: var(--danger, #ef4444);
   color: var(--danger, #ef4444);
 }
+
+/* ── Target Modal ────────────────────────────────────────────── */
+.target-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  padding: 24px;
+}
+
+.target-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.target-modal h3 {
+  font-size: 22px;
+  margin: 0 0 12px;
+  color: var(--text-primary);
+}
+
+.target-modal p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.target-days-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.day-option-btn {
+  background: transparent;
+  border: 2px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-lg);
+  padding: 16px 8px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.day-option-btn:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.day-option-btn.active {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: rgba(15, 98, 254, 0.1);
+}
+
+.target-modal-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.target-modal-actions button {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-full);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.target-modal-actions .cancel-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.target-modal-actions .cancel-btn:hover {
+  background: var(--bg-card-hover);
+}
+
+.target-modal-actions .start-btn {
+  background: var(--accent-primary);
+  border: none;
+  color: #fff;
+}
+
+.target-modal-actions .start-btn:hover {
+  background: var(--accent-primary-hover);
+}
