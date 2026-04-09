@@ -139,9 +139,6 @@ export default function MyHobbies() {
           ))}
         </div>
       )}
-        </div>
-      )}
-
       {showTargetModal && selectedHobby && (
         <div className="target-modal-backdrop" onClick={() => setShowTargetModal(false)}>
           <div className="target-modal" onClick={(e) => e.stopPropagation()}>
