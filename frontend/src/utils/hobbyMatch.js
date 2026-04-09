@@ -1,7 +1,21 @@
 import hobbiesData from '../data/hobbies.json';
 
 export function getAllDomainHobbies() {
-  return hobbiesData?.hobbies || [];
+  if (!hobbiesData) return [];
+  const flat = [];
+  // Parse the new {"Low_Energy_Mode": { "hobbies": [...] }} structure
+  for (const [category, modeData] of Object.entries(hobbiesData)) {
+    if (modeData && modeData.hobbies) {
+      for (const h of modeData.hobbies) {
+        flat.push({
+          ...h,
+          id: h.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+          category,
+        });
+      }
+    }
+  }
+  return flat;
 }
 
 /**
@@ -10,15 +24,26 @@ export function getAllDomainHobbies() {
  */
 export function normalizeHobbyForFocus(raw) {
   if (!raw) return null;
+
+  // Derive online status from the new `mode` field if present
+  const mode = (raw.mode || '').toLowerCase();
+  const isOnline = raw.is_online != null
+    ? !!raw.is_online
+    : mode.includes('online');
+
+  // Pick up `resource` (new schema) or `url` (legacy/domain)
+  const url = raw.resource || raw.url || '';
+
   if (raw.id && !raw._id) {
     return {
       id: raw.id,
       name: raw.name || 'Hobby',
       description: raw.description || '',
-      url: raw.url || '',
-      is_online: !!raw.is_online,
-      environment: raw.environment || 'either',
-      interest_type: Array.isArray(raw.interest_type) ? raw.interest_type : [],
+      goal: raw.goal || '',
+      url,
+      is_online: isOnline,
+      environment: raw.environment || (mode.includes('offline') ? 'offline' : 'either'),
+      interest_type: Array.isArray(raw.tags) ? raw.tags : raw.meta_data || [],
     };
   }
   const id = String(raw._id ?? '');
@@ -26,11 +51,12 @@ export function normalizeHobbyForFocus(raw) {
     id,
     name: raw.name || 'Hobby',
     description: raw.description || '',
-    url: raw.url || '',
-    is_online: !!raw.is_online,
-    environment: raw.environment || 'either',
-    interest_type: Array.isArray(raw.interest_type)
-      ? raw.interest_type
+    goal: raw.goal || '',
+    url,
+    is_online: isOnline,
+    environment: raw.environment || (mode.includes('offline') ? 'offline' : 'either'),
+    interest_type: Array.isArray(raw.tags)
+      ? raw.tags
       : raw.category
         ? [raw.category]
         : [],

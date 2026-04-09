@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   Board Page — Polaroid Memory Board
+   Board Page — Achievements Showcase
    ═══════════════════════════════════════════════════════════════ */
 
 .board-page {
-  padding: 20px var(--page-padding);
+  padding: 24px var(--page-padding);
   padding-bottom: calc(var(--nav-height) + 40px);
   min-height: 100dvh;
 }
@@ -25,9 +25,9 @@
 }
 
 .board-subtitle {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 6px;
 }
 
 .btn-add-memory {
@@ -35,101 +35,97 @@
   font-size: 14px;
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* ── Loading ─────────────────────────────────────────────────── */
+/* ── Metrics ─────────────────────────────────────────────────── */
+.achievements-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-val {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-primary);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.metric-lbl {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ── Loading & Empty ─────────────────────────────────────────── */
 .board-loading {
   text-align: center;
   padding: 80px 20px;
   color: var(--text-secondary);
 }
 
-.board-loading p {
-  margin-top: 12px;
-  font-size: 14px;
-}
-
-/* ── Empty State ─────────────────────────────────────────────── */
 .board-empty {
   text-align: center;
   padding: 60px 20px;
-  max-width: 340px;
+  max-width: 440px;
   margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
 }
 
 .empty-illustration {
   margin-bottom: 24px;
-  position: relative;
-  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.empty-icon {
-  font-size: 56px;
-  opacity: 0.3;
-  position: relative;
-  z-index: 1;
-}
-
-.empty-polaroids {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mini-polaroid {
-  width: 48px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  position: absolute;
-}
-
-.mini-polaroid.p1 { transform: rotate(-12deg) translateX(-30px); }
-.mini-polaroid.p2 { transform: rotate(5deg); }
-.mini-polaroid.p3 { transform: rotate(15deg) translateX(30px); }
 
 .board-empty h2 {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .board-empty p {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-secondary);
   margin-bottom: 24px;
   line-height: 1.6;
 }
 
-/* ── Polaroid Grid ───────────────────────────────────────────── */
-.polaroid-grid {
+/* ── Grid ────────────────────────────────────────────────────── */
+.achievement-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-@media (max-width: 480px) {
-  .polaroid-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 /* ── Expanded Modal ──────────────────────────────────────────── */
-.polaroid-overlay {
+.achievement-overlay {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -137,71 +133,68 @@
   padding: 20px;
 }
 
-.polaroid-expanded {
+.achievement-expanded {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
-  max-width: 360px;
+  max-width: 400px;
   width: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .expanded-photo {
-  height: 200px;
+  height: 180px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent-gradient-subtle);
-}
-
-.expanded-emoji {
-  font-size: 72px;
+  border-bottom: 1px solid var(--border);
 }
 
 .expanded-body {
-  padding: 20px 24px 24px;
+  padding: 24px;
   text-align: center;
 }
 
 .expanded-body h3 {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 8px;
-}
-
-.expanded-stars {
-  font-size: 20px;
-  color: var(--gold);
-  margin: 12px 0;
-  letter-spacing: 4px;
+  margin: 0 0 12px;
 }
 
 .expanded-note {
-  font-family: var(--font-handwritten);
-  font-size: 20px;
+  font-size: 16px;
   color: var(--text-secondary);
-  margin: 12px 0;
-  line-height: 1.4;
+  margin: 16px 0;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 12px;
 }
 
 .expanded-date {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .btn-delete {
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--danger);
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.2);
-  border-radius: var(--radius-full);
+  background: rgba(218, 30, 40, 0.1);
+  border: 1px solid rgba(218, 30, 40, 0.2);
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
+  width: 100%;
+  justify-content: center;
 }
 
 .btn-delete:hover {
-  background: rgba(248, 113, 113, 0.2);
+  background: rgba(218, 30, 40, 0.2);
 }
